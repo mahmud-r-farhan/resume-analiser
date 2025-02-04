@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Link } from "react-router-dom"
 import axios from "axios"
 
 const ForgotPassword = () => {
@@ -9,11 +10,11 @@ const ForgotPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/forgot-password`, { email })
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/forgot-password`, { email })
       setMessage(response.data.message)
       setError("")
     } catch (error) {
-      setError(error.response.data.message || "An error occurred")
+      setError(error.response?.data?.message || "An error occurred")
       setMessage("")
     }
   }
@@ -43,8 +44,8 @@ const ForgotPassword = () => {
             </div>
           </div>
 
-          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-          {message && <p className="text-green-500 text-sm mt-2">{message}</p>}
+          {error && <p className="text-red-500 text-xs italic">{error}</p>}
+          {message && <p className="text-green-500 text-xs italic">{message}</p>}
 
           <div>
             <button
@@ -55,10 +56,17 @@ const ForgotPassword = () => {
             </button>
           </div>
         </form>
+        <div className="text-center">
+          <p className="text-sm text-gray-600">
+            Remember your password?{" "}
+            <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+              Sign in
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )
 }
 
 export default ForgotPassword
-

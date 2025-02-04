@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import axios from "axios"
 
 const Register = () => {
@@ -11,39 +11,24 @@ const Register = () => {
     password: "",
     confirmPassword: "",
   })
-  const [errors, setErrors] = useState({})
+  const [error, setError] = useState("")
   const navigate = useNavigate()
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const validateForm = () => {
-    const errors = {}
-    if (!formData.username.trim()) errors.username = "Username is required"
-    if (!formData.firstName.trim()) errors.firstName = "First name is required"
-    if (!formData.lastName.trim()) errors.lastName = "Last name is required"
-    if (!formData.email.trim()) errors.email = "Email is required"
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = "Email is invalid"
-    if (!formData.password) errors.password = "Password is required"
-    else if (formData.password.length < 6) errors.password = "Password must be at least 6 characters"
-    if (formData.password !== formData.confirmPassword) errors.confirmPassword = "Passwords do not match"
-    return errors
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const formErrors = validateForm()
-    if (Object.keys(formErrors).length > 0) {
-      setErrors(formErrors)
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match")
       return
     }
-
     try {
-      await axios.post("http://localhost:5000/api/auth/register", formData)
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/register`, formData)
       navigate("/login")
     } catch (error) {
-      setErrors({ api: error.response.data.message || "An error occurred" })
+      setError(error.response?.data?.message || "An error occurred")
     }
   }
 
@@ -54,6 +39,7 @@ const Register = () => {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Create your account</h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <input type="hidden" name="remember" value="true" />
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="username" className="sr-only">
@@ -69,7 +55,6 @@ const Register = () => {
                 value={formData.username}
                 onChange={handleChange}
               />
-              {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
             </div>
             <div>
               <label htmlFor="firstName" className="sr-only">
@@ -85,7 +70,6 @@ const Register = () => {
                 value={formData.firstName}
                 onChange={handleChange}
               />
-              {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
             </div>
             <div>
               <label htmlFor="lastName" className="sr-only">
@@ -101,7 +85,6 @@ const Register = () => {
                 value={formData.lastName}
                 onChange={handleChange}
               />
-              {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
             </div>
             <div>
               <label htmlFor="email" className="sr-only">
@@ -117,7 +100,6 @@ const Register = () => {
                 value={formData.email}
                 onChange={handleChange}
               />
-              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
             <div>
               <label htmlFor="password" className="sr-only">
@@ -133,7 +115,6 @@ const Register = () => {
                 value={formData.password}
                 onChange={handleChange}
               />
-              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
             </div>
             <div>
               <label htmlFor="confirmPassword" className="sr-only">
@@ -149,11 +130,10 @@ const Register = () => {
                 value={formData.confirmPassword}
                 onChange={handleChange}
               />
-              {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
             </div>
           </div>
 
-          {errors.api && <p className="text-red-500 text-sm mt-2">{errors.api}</p>}
+          {error && <p className="text-red-500 text-xs italic">{error}</p>}
 
           <div>
             <button
@@ -164,9 +144,18 @@ const Register = () => {
             </button>
           </div>
         </form>
+        <div className="text-center">
+          <p className="text-sm text-gray-600">
+            Already have an account?{" "}
+            <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+              Sign in
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )
 }
 
 export default Register
+

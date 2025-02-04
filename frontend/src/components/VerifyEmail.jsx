@@ -11,11 +11,11 @@ const VerifyEmail = () => {
   useEffect(() => {
     const verifyEmail = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/auth/verify/${token}`)
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/auth/verify/${token}`)
         setMessage(response.data.message)
         setTimeout(() => navigate("/login"), 3000)
       } catch (error) {
-        setError(error.response.data.message || "An error occurred")
+        setError(error.response?.data?.message || "An error occurred")
       }
     }
 

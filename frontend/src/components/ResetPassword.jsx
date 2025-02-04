@@ -17,12 +17,14 @@ const ResetPassword = () => {
       return
     }
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/reset-password/${token}`, { password })
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/reset-password/${token}`, {
+        password,
+      })
       setMessage(response.data.message)
       setError("")
       setTimeout(() => navigate("/login"), 3000)
     } catch (error) {
-      setError(error.response.data.message || "An error occurred")
+      setError(error.response?.data?.message || "An error occurred")
       setMessage("")
     }
   }
@@ -67,8 +69,8 @@ const ResetPassword = () => {
             </div>
           </div>
 
-          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-          {message && <p className="text-green-500 text-sm mt-2">{message}</p>}
+          {error && <p className="text-red-500 text-xs italic">{error}</p>}
+          {message && <p className="text-green-500 text-xs italic">{message}</p>}
 
           <div>
             <button

@@ -1,37 +1,26 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useState, useContext } from "react"
+import { useNavigate, Link } from "react-router-dom"
 import axios from "axios"
+import { AuthContext } from "../contexts/AuthContext"
 
 const Login = () => {
   const [formData, setFormData] = useState({ username: "", password: "" })
-  const [errors, setErrors] = useState({})
+  const [error, setError] = useState("")
   const navigate = useNavigate()
+  const { login } = useContext(AuthContext)
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const validateForm = () => {
-    const errors = {}
-    if (!formData.username.trim()) errors.username = "Username is required"
-    if (!formData.password) errors.password = "Password is required"
-    return errors
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const formErrors = validateForm()
-    if (Object.keys(formErrors).length > 0) {
-      setErrors(formErrors)
-      return
-    }
-
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/login", formData)
-      localStorage.setItem("token", response.data.token)
-      navigate("/dashboard")
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login`, formData)
+      login(response.data.token, response.data.user)
+      navigate("/profile")
     } catch (error) {
-      setErrors({ api: error.response.data.message || "An error occurred" })
+      setError(error.response?.data?.message || "An error occurred")
     }
   }
 
@@ -42,6 +31,7 @@ const Login = () => {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <input type="hidden" name="remember" value="true" />
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="username" className="sr-only">
@@ -57,7 +47,6 @@ const Login = () => {
                 value={formData.username}
                 onChange={handleChange}
               />
-              {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
             </div>
             <div>
               <label htmlFor="password" className="sr-only">
@@ -73,11 +62,18 @@ const Login = () => {
                 value={formData.password}
                 onChange={handleChange}
               />
-              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
             </div>
           </div>
 
-          {errors.api && <p className="text-red-500 text-sm mt-2">{errors.api}</p>}
+          <div className="flex items-center justify-between">
+            <div className="text-sm">
+              <Link to="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500">
+                Forgot your password?
+              </Link>
+            </div>
+          </div>
+
+          {error && <p className="text-red-500 text-xs italic">{error}</p>}
 
           <div>
             <button
@@ -88,6 +84,14 @@ const Login = () => {
             </button>
           </div>
         </form>
+        <div className="text-center">
+          <p className="text-sm text-gray-600">
+            Don't have an account?{" "}
+            <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+              Sign up
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )

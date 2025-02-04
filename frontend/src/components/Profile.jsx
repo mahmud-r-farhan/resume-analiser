@@ -1,40 +1,11 @@
-import { useEffect, useState } from "react"
-import axios from "axios"
-import { useNavigate } from "react-router-dom"
+import { useContext } from "react"
+import { AuthContext } from "../contexts/AuthContext"
 
 const Profile = () => {
-  const [user, setUser] = useState(null)
-  const [error, setError] = useState("")
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const token = localStorage.getItem("token")
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/auth/profile`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        setUser(response.data)
-      } catch (error) {
-        setError("Error fetching profile")
-        console.error(error)
-      }
-    }
-
-    fetchProfile()
-  }, [])
-
-  const handleLogout = () => {
-    localStorage.removeItem("token")
-    navigate("/login")
-  }
-
-  if (error) {
-    return <div className="text-red-500 text-center mt-8">{error}</div>
-  }
+  const { user, logout } = useContext(AuthContext)
 
   if (!user) {
-    return <div className="text-center mt-8">Loading...</div>
+    return <div>Loading...</div>
   }
 
   return (
@@ -61,7 +32,7 @@ const Profile = () => {
             </div>
             <div>
               <button
-                onClick={handleLogout}
+                onClick={logout}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 Logout

@@ -2,6 +2,8 @@ import express from "express"
 import mongoose from "mongoose"
 import cors from "cors"
 import dotenv from "dotenv"
+import helmet from "helmet"
+import rateLimit from "express-rate-limit"
 import authRoutes from "./routes/authRoutes.js"
 import { errorHandler } from "./middleware/errorMiddleware.js"
 
@@ -9,7 +11,22 @@ dotenv.config()
 
 const app = express()
 
-app.use(cors())
+// Security middleware
+app.use(helmet())
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  }),
+)
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+})
+app.use("/api", limiter)
+
 app.use(express.json())
 
 mongoose

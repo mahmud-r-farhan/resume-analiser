@@ -1,3 +1,4 @@
+
 # MERN Stack Advanced Authentication System
 
 This project is a MERN (MongoDB, Express, React, Node.js) stack application that implements an advanced authentication system with email verification.
@@ -76,7 +77,7 @@ Before you begin, ensure you have the following installed:
    npm start
    \`\`\`
 
-3. Open your browser and navigate to \`http://localhost:5000\` to use the application.
+3. Open your browser and navigate to \`http://localhost:3000\` to use the application.
 
 ## API Endpoints
 
@@ -91,4 +92,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License.
+
+## Contact
+
+For any questions or inquiries, please contact me at [dev@devplus.fun](mailto:dev@devplus.fun).
+
 
