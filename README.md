@@ -95,6 +95,6 @@ This project is licensed under the MIT License.
 
 ## Contact
 
-For any questions or inquiries, please contact me at [dev@devplus.fun](mailto:dev@devplus.fun).
+For any questions or inquiries, don't hesitate to get in touch with me at dev@devplus.fun
 
 
