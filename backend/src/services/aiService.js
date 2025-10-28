@@ -10,7 +10,7 @@ class AIService {
       baseURL: 'https://openrouter.ai/api/v1',
       apiKey: process.env.OPENROUTER_API_KEY,
       defaultHeaders: {
-        'HTTP-Referer': process.env.APP_URL || 'http://localhost:5173',
+        'HTTP-Referer': process.env.APP_URL  || 'https://resumeanalizer.vercel.app' || 'https://resumeanaliser.vercel.app/' || 'https://resume-analiser.vercel.app' || 'https://cvoptimizer.vercel.app',
         'X-Title': 'CV Optimizer'
       }
     });
