@@ -1,51 +1,68 @@
-require('dotenv').config();
-const { OpenAI } = require('openai');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const { extractTextFromPDF } = require('../utils/pdfParser');
+const aiService = require('../services/aiService');
+const Analysis = require('../models/Analysis');
+const { extractTextFromPDF, cleanupFile } = require('../utils/pdfParser');
 
-const openai = new OpenAI({
-  baseURL: 'https://openrouter.ai/api/v1',
-  apiKey: process.env.OPENROUTER_API_KEY,
-});
+const analyzeCV = async (req, res, next) => {
+  let filePath = null;
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
-});
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } }).single('cv');
-
-const analyzeCV = async (req, res) => {
-  upload(req, res, async (err) => {
-    if (err) return res.status(400).json({ error: 'File upload error' });
-
-    const { jobDescription, model = 'z-ai/glm-4-5-air:free' } = req.body;  // Default to GLM 4.5 Air; allow selection
-    const cvPath = req.file.path;
-
-    try {
-      const cvText = await extractTextFromPDF(cvPath);
-      fs.unlinkSync(cvPath);  // Delete temp file
-
-      const prompt = `
-        Analyze this CV text against the job description. Suggest changes, strengths, weaknesses, and give a fit score (0-100).
-        CV: ${cvText}
-        Job Description: ${jobDescription}
-      `;
-
-      const completion = await openai.chat.completions.create({
-        model,  // e.g., 'z-ai/glm-4-5-air:free' or 'tng/deepseek-r1t2-chimera:free'
-        messages: [{ role: 'user', content: prompt }],
+  try {
+    // Check if file was uploaded
+    if (!req.file) {
+      return res.status(400).json({ 
+        error: 'No CV file uploaded',
+        message: 'Please upload a PDF file' 
       });
-
-      const result = completion.choices[0].message.content;
-      // Optionally save to MongoDB here
-      res.json({ analysis: result });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Analysis failed' });
     }
-  });
+
+    filePath = req.file.path;
+    const { jobDescription, model = 'z-ai/glm-4-5-air:free' } = req.body;
+
+    // Extract text from PDF
+    console.log(`Processing CV: ${req.file.originalname}`);
+    const cvText = await extractTextFromPDF(filePath);
+
+    // Analyze with AI
+    console.log(`Analyzing with model: ${model}`);
+    const result = await aiService.analyzeCV(cvText, jobDescription, model);
+
+    // Save to database (optional)
+    if (process.env.MONGO_URI) {
+      try {
+        await Analysis.create({
+          cvFileName: req.file.originalname,
+          jobDescription,
+          model,
+          analysis: result.analysis,
+          fitScore: result.fitScore
+        });
+      } catch (dbError) {
+        console.error('Database save error:', dbError);
+        // Continue even if DB save fails
+      }
+    }
+
+    // Send response
+    res.status(200).json({
+      success: true,
+      analysis: result.analysis,
+      fitScore: result.fitScore,
+      model: result.model,
+      metadata: {
+        fileName: req.file.originalname,
+        fileSize: req.file.size,
+        tokensUsed: result.tokensUsed
+      }
+    });
+
+  } catch (error) {
+    console.error('Analysis error:', error);
+    next(error);
+  } finally {
+    // Always cleanup the uploaded file
+    if (filePath) {
+      await cleanupFile(filePath);
+    }
+  }
 };
 
 module.exports = { analyzeCV };

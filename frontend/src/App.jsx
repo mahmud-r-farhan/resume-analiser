@@ -1,16 +1,308 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, FileText, Sparkles, AlertCircle, CheckCircle2, Loader2, ArrowRight, ArrowLeft, Zap } from 'lucide-react';
+import { Toaster, toast } from 'sonner';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import {
+  Upload, FileText, Sparkles, AlertCircle, CheckCircle2,
+  Loader2, ArrowRight, ArrowLeft, Zap, Download,
+  Trash2, RefreshCw, Info, X, FileDown, BookOpen
+} from 'lucide-react';
+
+// Zustand Store with persistence
+const useStore = create(
+  persist(
+    (set) => ({
+      cvFile: null,
+      jobDesc: '',
+      model: 'z-ai/glm-4-5-air:free',
+      analysis: '',
+      setCvFile: (file) => set({ cvFile: file }),
+      setJobDesc: (desc) => set({ jobDesc: desc }),
+      setModel: (model) => set({ model }),
+      setAnalysis: (analysis) => set({ analysis }),
+      clearStore: () => set({ cvFile: null, jobDesc: '', analysis: '', model: 'z-ai/glm-4-5-air:free' }),
+    }),
+    {
+      name: 'cv-optimizer-storage',
+      partialize: (state) => ({
+        jobDesc: state.jobDesc,
+        model: state.model,
+      }),
+    }
+  )
+);
+
+// Welcome Modal Component
+function WelcomeModal({ isOpen, onClose }) {
+  if (!isOpen) return null;
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          onClick={(e) => e.stopPropagation()}
+          className="bg-slate-800 rounded-2xl shadow-2xl max-w-lg w-full border border-slate-700 overflow-hidden"
+        >
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Info className="w-8 h-8 text-white" />
+                <h2 className="text-2xl font-bold text-white">Welcome to CV Optimizer</h2>
+              </div>
+            </div>
+          </div>
+          
+          <div className="p-6 space-y-4">
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+              <p className="text-gray-200 leading-relaxed">
+                This application uses <span className="font-semibold text-blue-400">OpenRouter's free LLM models API</span> to analyze and optimize your CV for specific job positions.
+              </p>
+            </div>
+            <div className="space-y-3 text-gray-300">
+              <h3 className="font-semibold text-white flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                Key Features:
+              </h3>
+              <ul className="space-y-2 ml-7 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-400 mt-1">•</span>
+                  <span>AI-powered CV analysis tailored to job descriptions</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-400 mt-1">•</span>
+                  <span>Multiple free AI models to choose from</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-400 mt-1">•</span>
+                  <span>Download results in Markdown or DOCX format</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-400 mt-1">•</span>
+                  <span>Auto-save job descriptions (resume data stays in-memory)</span>
+                </li>
+              </ul>
+            </div>
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-sm">
+              <p className="text-amber-200">
+                <strong>Note:</strong> Your CV file is processed in-memory only and not stored permanently for privacy reasons.
+              </p>
+            </div>
+          </div>
+          <div className="p-6 pt-0">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={onClose}
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all"
+            >
+              Continue to Application
+            </motion.button>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+// File Upload Component
+function FileUpload({ cvFile, onFileChange, dragActive, onDragHandlers }) {
+  return (
+    <div
+      className={`relative border-2 border-dashed rounded-2xl p-12 transition-all cursor-pointer ${
+        dragActive
+          ? 'border-blue-500 bg-blue-500/10'
+          : cvFile
+          ? 'border-green-500 bg-green-500/10'
+          : 'border-slate-600 hover:border-slate-500 bg-slate-700/30'
+      }`}
+      {...onDragHandlers}
+    >
+      <input
+        type="file"
+        accept=".pdf"
+        onChange={onFileChange}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+      />
+      <div className="text-center pointer-events-none">
+        {cvFile ? (
+          <motion.div
+            initial={{ scale: 0.8 }}
+            animate={{ scale: 1 }}
+            className="flex flex-col items-center"
+          >
+            <CheckCircle2 className="w-16 h-16 text-green-400 mb-4" />
+            <p className="font-semibold text-xl text-white mb-2">{cvFile.name}</p>
+            <p className="text-gray-400">
+              {(cvFile.size / 1024).toFixed(2)} KB
+            </p>
+            <p className="text-sm text-gray-500 mt-2">Click to change file</p>
+          </motion.div>
+        ) : (
+          <div>
+            <Upload className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+            <p className="text-gray-300 font-medium mb-2 text-lg">
+              Drop your PDF here or click to browse
+            </p>
+            <p className="text-gray-500">PDF files only, max 10MB</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Step Indicator Component
+function StepIndicator({ currentStep }) {
+  const steps = [
+    { number: 1, label: 'Upload CV' },
+    { number: 2, label: 'Job Details' },
+    { number: 3, label: 'Analysis' }
+  ];
+  return (
+    <div className="flex items-center justify-center mb-12">
+      {steps.map((step, idx) => (
+        <div key={step.number} className="flex items-center">
+          <div className="flex flex-col items-center">
+            <motion.div
+              initial={false}
+              animate={{
+                scale: currentStep === step.number ? 1.1 : 1,
+                backgroundColor: currentStep > step.number
+                  ? 'rgba(34, 197, 94, 1)'
+                  : currentStep === step.number
+                  ? 'rgba(59, 130, 246, 1)'
+                  : 'rgba(71, 85, 105, 0.5)'
+              }}
+              className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-white shadow-lg"
+            >
+              {currentStep > step.number ? (
+                <CheckCircle2 className="w-7 h-7" />
+              ) : (
+                step.number
+              )}
+            </motion.div>
+            <p className="text-xs text-gray-400 mt-2 hidden sm:block">{step.label}</p>
+          </div>
+          {idx < steps.length - 1 && (
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{
+                width: currentStep > step.number ? '100%' : '0%',
+                backgroundColor: currentStep > step.number ? 'rgba(34, 197, 94, 1)' : 'rgba(71, 85, 105, 0.5)'
+              }}
+              className="h-1 w-16 sm:w-24 mx-2 rounded-full"
+            />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Download Button Component
+function DownloadButtons({ analysis, cvFileName }) {
+  const downloadMarkdown = () => {
+    const blob = new Blob([analysis], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `CV_Analysis_${cvFileName || 'result'}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('Markdown file downloaded!');
+  };
+  const downloadDocx = () => {
+    // Simple DOCX-like format (HTML that Word can open)
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>CV Analysis Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; padding: 40px; }
+          h1 { color: #2563eb; border-bottom: 3px solid #2563eb; padding-bottom: 10px; }
+          h2 { color: #1e40af; margin-top: 20px; }
+          p { margin: 10px 0; }
+          pre { background: #f3f4f6; padding: 15px; border-radius: 5px; white-space: pre-wrap; }
+        </style>
+      </head>
+      <body>
+        <h1>CV Optimization Analysis Report</h1>
+        <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
+        <hr>
+        <pre>${analysis}</pre>
+      </body>
+      </html>
+    `;
+    
+    const blob = new Blob([htmlContent], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `CV_Analysis_${cvFileName || 'result'}.doc`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('Document file downloaded!');
+  };
+  return (
+    <div className="flex flex-col sm:flex-row gap-3">
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        onClick={downloadMarkdown}
+        className="flex-1 flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-lg border border-slate-600"
+      >
+        <FileDown className="w-5 h-5" />
+        Download Markdown
+      </motion.button>
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        onClick={downloadDocx}
+        className="flex-1 flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-lg border border-slate-600"
+      >
+        <BookOpen className="w-5 h-5" />
+        Download Document
+      </motion.button>
+    </div>
+  );
+}
 
 function App() {
   const [step, setStep] = useState(1);
-  const [cvFile, setCvFile] = useState(null);
-  const [jobDesc, setJobDesc] = useState('');
-  const [analysis, setAnalysis] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [model, setModel] = useState('z-ai/glm-4-5-air:free');
   const [dragActive, setDragActive] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [localCvFile, setLocalCvFile] = useState(null);
+  const { cvFile, jobDesc, model, analysis, setCvFile, setJobDesc, setModel, setAnalysis, clearStore } = useStore();
+
+  useEffect(() => {
+    // Check if user has seen welcome modal
+    const hasSeenWelcome = localStorage.getItem('cv-optimizer-welcome-seen');
+    if (hasSeenWelcome) {
+      setShowWelcome(false);
+    }
+  }, []);
+
+  const handleWelcomeClose = () => {
+    setShowWelcome(false);
+    localStorage.setItem('cv-optimizer-welcome-seen', 'true');
+  };
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -30,10 +322,12 @@ function App() {
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
       if (file.type === 'application/pdf') {
-        setCvFile(file);
+        setLocalCvFile(file);
+        setCvFile({ name: file.name, size: file.size });
         setError('');
       } else {
         setError('Please upload a PDF file');
+        toast.error('Please upload a PDF file');
       }
     }
   };
@@ -42,30 +336,30 @@ function App() {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (file.type === 'application/pdf') {
-        setCvFile(file);
+        setLocalCvFile(file);
+        setCvFile({ name: file.name, size: file.size });
         setError('');
       } else {
         setError('Please upload a PDF file');
+        toast.error('Please upload a PDF file');
       }
     }
   };
 
   const handleSubmit = async () => {
-    if (!cvFile || !jobDesc.trim()) {
+    if (!localCvFile || !jobDesc.trim()) {
       setError('Please provide both CV and job description');
+      toast.error("Please provide both CV and job description");
       return;
     }
-
     setLoading(true);
     setError('');
     setAnalysis('');
     setStep(3);
-
     const formData = new FormData();
-    formData.append('cv', cvFile);
+    formData.append('cv', localCvFile);
     formData.append('jobDescription', jobDesc);
     formData.append('model', model);
-
     try {
       const apiEndpoint = import.meta.env.VITE_API_ENDPOINT || '/api/analyze';
       
@@ -73,15 +367,15 @@ function App() {
         method: 'POST',
         body: formData,
       });
-
       if (!res.ok) {
         throw new Error(`Server error: ${res.status}`);
       }
-
       const data = await res.json();
       setAnalysis(data.analysis);
+      toast.success('Analysis complete!');
     } catch (err) {
       setError(err.message || 'Failed to analyze CV. Please try again.');
+      toast.error(err.message || 'Failed to analyze CV');
       setStep(2);
     } finally {
       setLoading(false);
@@ -89,355 +383,261 @@ function App() {
   };
 
   const resetForm = () => {
-    setCvFile(null);
-    setJobDesc('');
-    setAnalysis('');
+    setLocalCvFile(null);
+    clearStore();
     setError('');
     setStep(1);
+    toast.success('Form reset successfully');
   };
 
-  const canProceedToStep2 = cvFile !== null;
-  const canAnalyze = cvFile && jobDesc.trim();
-
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.5, ease: "easeOut" }
-    },
-    exit: { 
-      opacity: 0, 
-      y: -20,
-      transition: { duration: 0.3 }
-    }
+  const clearAnalysisAndContinue = () => {
+    setAnalysis('');
+    setStep(1);
+    toast.info('Ready for new analysis');
   };
 
-  const stepIndicatorVariants = {
-    inactive: { scale: 1, backgroundColor: "rgba(71, 85, 105, 0.5)" },
-    active: { 
-      scale: 1.1, 
-      backgroundColor: "rgba(59, 130, 246, 1)",
-      transition: { duration: 0.3 }
-    },
-    complete: { 
-      scale: 1, 
-      backgroundColor: "rgba(34, 197, 94, 1)",
-      transition: { duration: 0.3 }
-    }
+  const canProceedToStep2 = localCvFile !== null;
+  const canAnalyze = localCvFile && jobDesc.trim();
+
+  const dragHandlers = {
+    onDragEnter: handleDrag,
+    onDragLeave: handleDrag,
+    onDragOver: handleDrag,
+    onDrop: handleDrop
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent"></div>
+    <>
+      <WelcomeModal isOpen={showWelcome} onClose={handleWelcomeClose} />
       
-      <div className="relative max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        {/* Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <div className="flex items-center justify-center mb-4">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            >
-              <Sparkles className="w-12 h-12 text-blue-500 mr-3" />
-            </motion.div>
-            <h1 className="text-4xl sm:text-6xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              CV Optimizer
-            </h1>
-          </div>
-          <p className="text-gray-400 text-lg">
-            AI-powered CV analysis for your dream job
-          </p>
-        </motion.div>
-
-        {/* Step Indicator */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="flex items-center justify-center mb-12 gap-8"
-        >
-          {[1, 2, 3].map((s, idx) => (
-            <div key={s} className="flex items-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent"></div>
+        
+        <Toaster position="top-right" expand={true} richColors />
+        
+        <div className="relative max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+          {/* Header */}
+          <motion.header
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-12"
+          >
+            <div className="flex items-center justify-center mb-4">
               <motion.div
-                variants={stepIndicatorVariants}
-                animate={
-                  step > s ? "complete" : step === s ? "active" : "inactive"
-                }
-                className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-white shadow-lg"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               >
-                {step > s ? <CheckCircle2 className="w-12 h-12" /> : s}
+                <Sparkles className="w-10 h-10 text-blue-500 mr-3" />
               </motion.div>
-              {idx < 2 && (
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: step > s ? "100%" : "0%" }}
-                  className="h-1 w-14 sm:w-20 bg-green-500  pl-10 rounded-full"
-                />
-              )}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Professional CV Optimizer
+              </h1>
             </div>
-          ))}
-        </motion.div>
-
-        {/* Error Alert */}
-        <AnimatePresence>
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start backdrop-blur-sm"
-            >
-              <AlertCircle className="w-5 h-5 text-red-400 mr-3 flex-shrink-0 mt-0.5" />
-              <p className="text-red-300">{error}</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Main Content */}
-        <AnimatePresence mode="wait">
-          {/* Step 1: Upload CV */}
-          {step === 1 && (
-            <motion.div
-              key="step1"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="bg-slate-800/50 backdrop-blur-xl rounded-3xl shadow-2xl p-6 sm:p-10 border border-slate-700/50"
-            >
-              <div className="mb-6">
-                <h2 className="text-2xl sm:text-3xl font-bold mb-2 flex items-center">
-                  <Upload className="w-8 h-8 mr-3 text-blue-400" />
-                  Upload Your CV
-                </h2>
-                <p className="text-gray-400">Step 1: Let's start with your resume</p>
-              </div>
-
-              <div
-                className={`relative border-2 border-dashed rounded-2xl p-12 transition-all ${
-                  dragActive
-                    ? 'border-blue-500 bg-blue-500/10'
-                    : cvFile
-                    ? 'border-green-500 bg-green-500/10'
-                    : 'border-slate-600 hover:border-slate-500 bg-slate-700/30'
-                }`}
-                onDragEnter={handleDrag}
-                onDragLeave={handleDrag}
-                onDragOver={handleDrag}
-                onDrop={handleDrop}
+            <p className="text-gray-400 text-base sm:text-lg max-w-2xl mx-auto">
+              AI-powered resume analysis and optimization for your career advancement
+            </p>
+          </motion.header>
+          <StepIndicator currentStep={step} />
+          {/* Error Alert */}
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start backdrop-blur-sm"
               >
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleFileChange}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
-                <div className="text-center">
-                  {cvFile ? (
-                    <motion.div 
-                      initial={{ scale: 0.8 }}
-                      animate={{ scale: 1 }}
-                      className="flex flex-col items-center"
-                    >
-                      <CheckCircle2 className="w-16 h-16 text-green-400 mb-4" />
-                      <p className="font-semibold text-xl text-white mb-2">{cvFile.name}</p>
-                      <p className="text-gray-400">
-                        {(cvFile.size / 1024).toFixed(2)} KB
-                      </p>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      animate={{ y: [0, -10, 0] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    >
-                      <Upload className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-                      <p className="text-gray-300 font-medium mb-2 text-lg">
-                        Drop your PDF here or click to browse
-                      </p>
-                      <p className="text-gray-500">PDF files only, max 10MB</p>
-                    </motion.div>
-                  )}
-                </div>
-              </div>
-
-              <motion.div 
-                className="mt-8 flex justify-end"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setStep(2)}
-                  disabled={!canProceedToStep2}
-                  className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 px-8 rounded-xl disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed transition-all shadow-lg disabled:opacity-50"
-                >
-                  Next Step
-                  <ArrowRight className="w-5 h-5" />
-                </motion.button>
+                <AlertCircle className="w-5 h-5 text-red-400 mr-3 flex-shrink-0 mt-0.5" />
+                <p className="text-red-300">{error}</p>
               </motion.div>
-            </motion.div>
-          )}
-
-          {/* Step 2: Job Description */}
-          {step === 2 && (
-            <motion.div
-              key="step2"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="bg-slate-800/50 backdrop-blur-xl rounded-3xl shadow-2xl p-6 sm:p-10 border border-slate-700/50"
-            >
-              <div className="mb-6">
-                <h2 className="text-2xl sm:text-3xl font-bold mb-2 flex items-center">
-                  <FileText className="w-8 h-8 mr-3 text-purple-400" />
-                  Job Description
-                </h2>
-                <p className="text-gray-400">Step 2: Paste the job posting you're applying for</p>
-              </div>
-
-              <div className="mb-6">
-                <div className="relative">
-                  <textarea
-                    value={jobDesc}
-                    onChange={(e) => setJobDesc(e.target.value)}
-                    placeholder="Paste the complete job description here... Include requirements, responsibilities, and qualifications."
-                    className="w-full px-6 py-4 bg-slate-700/50 border border-slate-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none text-white placeholder-gray-500"
-                    rows="12"
-                  />
+            )}
+          </AnimatePresence>
+          {/* Main Content */}
+          <AnimatePresence mode="wait">
+            {/* Step 1: Upload CV */}
+            {step === 1 && (
+              <motion.section
+                key="step1"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="bg-slate-800/40 backdrop-blur-xl rounded-3xl shadow-2xl p-6 sm:p-10 border border-slate-700/50"
+              >
+                <div className="mb-6">
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-2 flex items-center">
+                    <Upload className="w-8 h-8 mr-3 text-blue-400" />
+                    Upload Your Resume
+                  </h2>
+                  <p className="text-gray-400">Step 1: Begin by uploading your current CV in PDF format</p>
                 </div>
-                <div className="flex justify-between items-center mt-3">
-                  <p className="text-sm text-gray-500">
-                    {jobDesc.length} characters
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {jobDesc.trim().split(/\s+/).filter(w => w).length} words
-                  </p>
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-300 mb-3">
-                  AI Model Selection
-                </label>
-                <select
-                  value={model}
-                  onChange={(e) => setModel(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-white"
-                >
-                  <option value="z-ai/glm-4-5-air:free">Z.AI: GLM 4.5 Air (Free)</option>
-                  <option value="tng/deepseek-r1t2-chimera:free">TNG: DeepSeek R1T2 Chimera (Free)</option>
-                  <option value="google/gemini-2-0-flash-experimental:free">Google: Gemini 2.0 Flash (Free)</option>
-                  <option value="openai/gpt-oss-20b:free">OpenAI: GPT OSS 20B (Free)</option>
-                </select>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4 mt-8">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setStep(1)}
-                  className="flex items-center justify-center gap-2 px-6 py-4 border-2 border-slate-600 text-gray-300 font-semibold rounded-xl hover:bg-slate-700/50 transition-all"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                  Back
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleSubmit}
-                  disabled={!canAnalyze}
-                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 px-8 rounded-xl disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed transition-all shadow-lg disabled:opacity-50"
-                >
-                  <Zap className="w-5 h-5" />
-                  Analyze CV
-                </motion.button>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Step 3: Results */}
-          {step === 3 && (
-            <motion.div
-              key="step3"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="bg-slate-800/50 backdrop-blur-xl rounded-3xl shadow-2xl p-6 sm:p-10 border border-slate-700/50"
-            >
-              <div className="mb-6">
-                <h2 className="text-2xl sm:text-3xl font-bold mb-2 flex items-center">
-                  <Sparkles className="w-8 h-8 mr-3 text-green-400" />
-                  Analysis Results
-                </h2>
-                <p className="text-gray-400">Your personalized CV optimization report</p>
-              </div>
-
-              {loading ? (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex flex-col items-center justify-center py-20"
-                >
-                  <Loader2 className="w-16 h-16 text-blue-400 animate-spin mb-6" />
-                  <p className="text-xl text-gray-300 mb-2">Analyzing your CV...</p>
-                  <p className="text-gray-500">This may take a few moments</p>
+                <FileUpload
+                  cvFile={cvFile}
+                  onFileChange={handleFileChange}
+                  dragActive={dragActive}
+                  onDragHandlers={dragHandlers}
+                />
+                <motion.div className="mt-8 flex justify-end">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setStep(2)}
+                    disabled={!canProceedToStep2}
+                    className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 px-8 rounded-xl disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed transition-all shadow-lg disabled:opacity-50"
+                  >
+                    Continue to Job Details
+                    <ArrowRight className="w-5 h-5" />
+                  </motion.button>
                 </motion.div>
-              ) : analysis ? (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <div className="bg-slate-700/30 rounded-2xl p-6 sm:p-8 border border-slate-600/50 mb-6">
-                    <div className="prose prose-invert max-w-none">
-                      <div className="whitespace-pre-wrap text-gray-200 leading-relaxed">
-                        {analysis}
-                      </div>
+              </motion.section>
+            )}
+            {/* Step 2: Job Description */}
+            {step === 2 && (
+              <motion.section
+                key="step2"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="bg-slate-800/40 backdrop-blur-xl rounded-3xl shadow-2xl p-6 sm:p-10 border border-slate-700/50"
+              >
+                <div className="mb-6">
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-2 flex items-center">
+                    <FileText className="w-8 h-8 mr-3 text-purple-400" />
+                    Target Job Description
+                  </h2>
+                  <p className="text-gray-400">Step 2: Provide the complete job posting details for analysis</p>
+                </div>
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-3">
+                      Job Posting Content
+                    </label>
+                    <textarea
+                      value={jobDesc}
+                      onChange={(e) => setJobDesc(e.target.value)}
+                      placeholder="Paste the complete job description here, including:&#10;• Job title and company name&#10;• Key responsibilities&#10;• Required qualifications&#10;• Preferred skills and experience&#10;• Company culture and benefits"
+                      className="w-full px-6 py-4 bg-slate-700/50 border border-slate-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none text-white placeholder-gray-500"
+                      rows="14"
+                    />
+                    <div className="flex justify-between items-center mt-3 text-sm text-gray-500">
+                      <span>{jobDesc.length} characters</span>
+                      <span>{jobDesc.trim().split(/\s+/).filter(w => w).length} words</span>
                     </div>
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={resetForm}
-                      className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 px-8 rounded-xl transition-all shadow-lg"
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-3">
+                      AI Model Selection
+                    </label>
+                    <select
+                      value={model}
+                      onChange={(e) => setModel(e.target.value)}
+                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-white"
                     >
-                      Analyze Another CV
-                    </motion.button>
+                      <option value="deepseek/deepseek-v3-base:free">DeepSeek: V3 Base (Free) - Technical Analysis</option>
+                      <option value="google/gemini-2.5-pro-exp-03-25:free">Google: Gemini 2.5 Pro Exp (Free) - Advanced Reasoning</option>
+                      <option value="mistralai/mistral-small-3.1-24b-instruct:free">Mistral: Small 3.1 Instruct (Free) - Efficient Optimization</option>
+                      <option value="meta-llama/llama-4-maverick:free">Meta: Llama 4 Maverick (Free) - Comprehensive Review</option>
+                    </select>
                   </div>
-                </motion.div>
-              ) : null}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Reset Button (always visible except on step 1) */}
-        {step !== 1 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mt-6 text-center"
-          >
-            <button
-              onClick={resetForm}
-              disabled={loading}
-              className="text-gray-400 hover:text-white transition-colors disabled:opacity-50"
-            >
-              Start Over
-            </button>
-          </motion.div>
-        )}
+                </div>
+                <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setStep(1)}
+                    className="flex items-center justify-center gap-2 px-6 py-4 border-2 border-slate-600 text-gray-300 font-semibold rounded-xl hover:bg-slate-700/50 transition-all"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                    Back to Upload
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleSubmit}
+                    disabled={!canAnalyze}
+                    className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 px-8 rounded-xl disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed transition-all shadow-lg disabled:opacity-50"
+                  >
+                    <Zap className="w-5 h-5" />
+                    Start AI Analysis
+                  </motion.button>
+                </div>
+              </motion.section>
+            )}
+            {/* Step 3: Results */}
+            {step === 3 && (
+              <motion.section
+                key="step3"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="bg-slate-800/40 backdrop-blur-xl rounded-3xl shadow-2xl p-6 sm:p-10 border border-slate-700/50"
+              >
+                <div className="mb-6">
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-2 flex items-center">
+                    <Sparkles className="w-8 h-8 mr-3 text-green-400" />
+                    Optimization Analysis
+                  </h2>
+                  <p className="text-gray-400">Step 3: Your comprehensive CV improvement recommendations</p>
+                </div>
+                {loading ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex flex-col items-center justify-center py-20"
+                  >
+                    <Loader2 className="w-16 h-16 text-blue-400 animate-spin mb-6" />
+                    <p className="text-xl text-gray-300 mb-2">Analyzing your CV with AI...</p>
+                    <p className="text-gray-500">This typically takes 30-60 seconds</p>
+                  </motion.div>
+                ) : analysis ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <div className="bg-slate-700/30 rounded-2xl p-6 sm:p-8 border border-slate-600/50 mb-6">
+                      <div className="prose prose-invert max-w-none">
+                        <div className="whitespace-pre-wrap text-gray-200 leading-relaxed">
+                          {analysis}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <DownloadButtons
+                        analysis={analysis}
+                        cvFileName={cvFile?.name?.replace('.pdf', '')}
+                      />
+                      
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={clearAnalysisAndContinue}
+                          className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 px-8 rounded-xl transition-all shadow-lg"
+                        >
+                          <RefreshCw className="w-5 h-5" />
+                          Analyze Another Position
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={resetForm}
+                          className="flex items-center justify-center gap-2 px-6 py-4 border-2 border-red-500/50 text-red-400 hover:bg-red-500/10 font-semibold rounded-xl transition-all"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                          Clear All Data
+                        </motion.button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : null}
+              </motion.section>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
