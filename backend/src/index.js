@@ -25,9 +25,23 @@ if (process.env.MONGO_URI) {
 // Security middleware
 app.use(helmet());
 
-// CORS configuration
+// CORS configuration - Use function to handle origins flexibly
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'https://resumeanalizer.vercel.app' , 
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      process.env.FRONTEND_URL,
+      'https://resumeanalizer.vercel.app',
+      'https://resumeanaliser.vercel.app',
+      'https://resume-analiser.vercel.app',
+      'https://cvoptimizer.vercel.app'
+    ].filter(Boolean); // Remove undefined/null
+
+    if (!origin || allowedOrigins.some(allowed => origin === allowed || origin === allowed + '/')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
