@@ -410,7 +410,7 @@ function App() {
     <>
       <WelcomeModal isOpen={showWelcome} onClose={handleWelcomeClose} />
       
-      <div className="min-h-screen bg-gradient-to-br from-[#1A0F3D] via-[#1A0F3D] to-[#4B2B7D] text-white">
+      <div className="min-h-screen bg-gradient-to-br from-[#0f1b43] via-[#231551] to-[#581d49] text-white">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#4DCFFF]/20 via-transparent to-transparent"></div>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-[#9C4DFF]/20 via-transparent to-transparent"></div>
         
