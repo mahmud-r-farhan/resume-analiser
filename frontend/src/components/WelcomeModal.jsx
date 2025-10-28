@@ -102,7 +102,7 @@ function WelcomeModal({ isOpen, onClose }) {
                   className="flex items-start gap-2"
                 >
                   <span className="text-blue-400 mt-1 flex-shrink-0">•</span>
-                  <span>Download results in Markdown or DOCX format</span>
+                  <span>Download results in Markdown or PDF format</span>
                 </motion.li>
                 <motion.li 
                   initial={{ x: -10, opacity: 0 }}
