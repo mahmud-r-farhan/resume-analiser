@@ -19,6 +19,7 @@ const useStore = create(
       analysis: '',
       setCvFile: (file) => set({ cvFile: file }),
       setJobDesc: (desc) => set({ jobDesc: desc }),
+      setModel: (model) => set({ model }),
       setAnalysis: (analysis) => set({ analysis }),
       clearStore: () => set({ cvFile: null, jobDesc: '', analysis: '', model: 'deepseek/deepseek-chat-v3.1:free' }),
     }),
@@ -35,7 +36,7 @@ const useStore = create(
 function WelcomeModal({ isOpen, onClose }) {
   if (!isOpen) return null;
   return (
-       <AnimatePresence>
+    <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -51,7 +52,7 @@ function WelcomeModal({ isOpen, onClose }) {
           className="bg-slate-800 rounded-2xl shadow-2xl max-w-xl w-full border border-slate-700 overflow-hidden"
         >
           {/* Header */}
-          <div className=" bg-gradient-to-br from-[#192a61] via-[#301e6a] to-[#732860] p-6">
+          <div className="bg-gradient-to-br from-[#192a61] via-[#301e6a] to-[#732860] p-6">
             <div className="flex items-center gap-3">
               <Info className="w-8 h-8 text-white" />
               <h2 className="text-3xl font-extrabold text-white tracking-tight">
@@ -164,7 +165,7 @@ function FileUpload({ cvFile, onFileChange, dragActive, onDragHandlers }) {
             <p className="text-gray-300 font-medium mb-2 text-lg">
               Drop your PDF here or click to browse
             </p>
-            <p className="text-gray-500">PDF files only, max 10MB</p>
+            <p className="text-gray-500">PDF files only, max 5MB</p>  {/* Updated to match backend limit */}
           </div>
         )}
       </div>
@@ -301,6 +302,7 @@ function App() {
   const [dragActive, setDragActive] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
   const [localCvFile, setLocalCvFile] = useState(null);
+  const [uploadLimitReached, setUploadLimitReached] = useState(false);
   const { cvFile, jobDesc, model, analysis, setCvFile, setJobDesc, setModel, setAnalysis, clearStore } = useStore();
 
   useEffect(() => {
@@ -308,6 +310,8 @@ function App() {
     const hasSeenWelcome = localStorage.getItem('cv-optimizer-welcome-seen');
     if (hasSeenWelcome) {
       setShowWelcome(false);
+    } else {
+      localStorage.setItem('cv-optimizer-welcome-seen', 'true');
     }
   }, []);
 
@@ -332,13 +336,13 @@ function App() {
     
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
-      if (file.type === 'application/pdf') {
+      if (file.type === 'application/pdf' && file.size <= 5 * 1024 * 1024) {  // Added size check to match backend
         setLocalCvFile(file);
         setCvFile({ name: file.name, size: file.size });
         setError('');
       } else {
-        setError('Please upload a PDF file');
-        toast.error('Please upload a PDF file');
+        setError('Please upload a PDF file under 5MB');
+        toast.error('Please upload a PDF file under 5MB');
       }
     }
   };
@@ -346,13 +350,13 @@ function App() {
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      if (file.type === 'application/pdf') {
+      if (file.type === 'application/pdf' && file.size <= 5 * 1024 * 1024) {  // Added size check
         setLocalCvFile(file);
         setCvFile({ name: file.name, size: file.size });
         setError('');
       } else {
-        setError('Please upload a PDF file');
-        toast.error('Please upload a PDF file');
+        setError('Please upload a PDF file under 5MB');
+        toast.error('Please upload a PDF file under 5MB');
       }
     }
   };
@@ -367,20 +371,30 @@ function App() {
     setError('');
     setAnalysis('');
     setStep(3);
+    setUploadLimitReached(false);
     const formData = new FormData();
     formData.append('cv', localCvFile);
     formData.append('jobDescription', jobDesc);
     formData.append('model', model);
     try {
-      const apiEndpoint = import.meta.env.VITE_API_ENDPOINT;
-      
+      const apiEndpoint = import.meta.env.VITE_API_ENDPOINT || '/api/analyze';  // Fallback for dev
       const res = await fetch(apiEndpoint, {
         method: 'POST',
         body: formData,
       });
+
       if (!res.ok) {
-        throw new Error(`Server error: ${res.status}`);
+        const data = await res.json();
+        if (res.status === 429) {
+          setUploadLimitReached(true);
+          toast.warning(data.message || 'Upload limit reached: max 4 per 24 hours.');
+          setStep(2); // go back to job details/upload
+          return; // exit early
+        } else {
+          throw new Error(data.error || `Server error: ${res.status}`);
+        }
       }
+
       const data = await res.json();
       setAnalysis(data.analysis);
       toast.success('Analysis complete!');
@@ -408,7 +422,7 @@ function App() {
   };
 
   const canProceedToStep2 = localCvFile !== null;
-  const canAnalyze = localCvFile && jobDesc.trim();
+  const canAnalyze = localCvFile && jobDesc.trim().length >= 50;  // Match min length from validation
 
   const dragHandlers = {
     onDragEnter: handleDrag,
@@ -461,6 +475,17 @@ function App() {
               >
                 <AlertCircle className="w-5 h-5 text-red-400 mr-3 flex-shrink-0 mt-0.5" />
                 <p className="text-red-300">{error}</p>
+              </motion.div>
+            )}
+            {uploadLimitReached && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl flex items-start backdrop-blur-sm"
+              >
+                <AlertCircle className="w-5 h-5 text-yellow-400 mr-3 flex-shrink-0 mt-0.5" />
+                <p className="text-yellow-300">Upload limit reached: maximum 4 CVs per 24 hours.</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -565,7 +590,7 @@ function App() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleSubmit}
-                    disabled={!canAnalyze}
+                    disabled={!canAnalyze || loading || uploadLimitReached}
                     className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#9C4DFF] to-[#FF6B9C] text-white font-semibold py-4 px-8 rounded-xl disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed transition-all shadow-lg disabled:opacity-50"
                   >
                     <Zap className="w-5 h-5" />
