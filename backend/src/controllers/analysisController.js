@@ -1,25 +1,22 @@
 const aiService = require('../services/aiService');
 const Analysis = require('../models/Analysis');
-const { extractTextFromPDF, cleanupFile } = require('../utils/pdfParser');
+const { extractTextFromPDF } = require('../utils/pdfParser');  // Removed cleanupFile since we're using memory storage
 
 const analyzeCV = async (req, res, next) => {
-  let filePath = null;
-
   try {
     // Check if file was uploaded
     if (!req.file) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'No CV file uploaded',
-        message: 'Please upload a PDF file' 
+        message: 'Please upload a PDF file'
       });
     }
 
-    filePath = req.file.path;
-    const { jobDescription, model = 'z-ai/glm-4-5-air:free' } = req.body;
+    const { jobDescription, model = 'deepseek/deepseek-chat-v3.1:free' } = req.body;
 
-    // Extract text from PDF
+    // Extract text from PDF buffer (updated for memory storage)
     console.log(`Processing CV: ${req.file.originalname}`);
-    const cvText = await extractTextFromPDF(filePath);
+    const cvText = await extractTextFromPDF(req.file.buffer);  // Pass buffer instead of path
 
     // Analyze with AI
     console.log(`Analyzing with model: ${model}`);
@@ -57,11 +54,6 @@ const analyzeCV = async (req, res, next) => {
   } catch (error) {
     console.error('Analysis error:', error);
     next(error);
-  } finally {
-    // Always cleanup the uploaded file
-    if (filePath) {
-      await cleanupFile(filePath);
-    }
   }
 };
 

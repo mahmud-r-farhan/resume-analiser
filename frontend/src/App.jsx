@@ -1,299 +1,18 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster, toast } from 'sonner';
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import {
-  Upload, FileText, Sparkles, AlertCircle, CheckCircle2,
-  Loader2, ArrowRight, ArrowLeft, Zap, Download,
-  Trash2, RefreshCw, Info, X, FileDown, BookOpen
+  Upload, FileText, Sparkles, AlertCircle, Loader2, ArrowRight, ArrowLeft, Zap,
+  Trash2, RefreshCw, X
 } from 'lucide-react';
 
-// Zustand Store with persistence
-const useStore = create(
-  persist(
-    (set) => ({
-      cvFile: null,
-      jobDesc: '',
-      model: 'deepseek/deepseek-chat-v3.1:free',
-      analysis: '',
-      setCvFile: (file) => set({ cvFile: file }),
-      setJobDesc: (desc) => set({ jobDesc: desc }),
-      setModel: (model) => set({ model }),
-      setAnalysis: (analysis) => set({ analysis }),
-      clearStore: () => set({ cvFile: null, jobDesc: '', analysis: '', model: 'deepseek/deepseek-chat-v3.1:free' }),
-    }),
-    {
-      name: 'cv-optimizer-storage',
-      partialize: (state) => ({
-        jobDesc: state.jobDesc,
-      }),
-    }
-  )
-);
-
-// Welcome Modal Component
-function WelcomeModal({ isOpen, onClose }) {
-  if (!isOpen) return null;
-  return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-        onClick={onClose}
-      >
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          onClick={(e) => e.stopPropagation()}
-          className="bg-slate-800 rounded-2xl shadow-2xl max-w-xl w-full border border-slate-700 overflow-hidden"
-        >
-          {/* Header */}
-          <div className="bg-gradient-to-br from-[#192a61] via-[#301e6a] to-[#732860] p-6">
-            <div className="flex items-center gap-3">
-              <Info className="w-8 h-8 text-white" />
-              <h2 className="text-3xl font-extrabold text-white tracking-tight">
-                Welcome to Resume Optimizer
-              </h2>
-            </div>
-          </div>
-
-          {/* Body */}
-          <div className="p-6 space-y-6">
-            {/* Info Box */}
-            <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
-              <p className="text-gray-200 leading-relaxed text-base">
-                This application uses{" "}
-                <span className="font-semibold text-blue-400">
-                  OpenRouter's free LLM models API
-                </span>{" "}
-                to analyze and optimize your resume for specific job positions.
-              </p>
-            </div>
-
-            {/* Features */}
-            <div className="space-y-4 text-gray-300">
-              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-400" />
-                Key Features:
-              </h3>
-              <ul className="space-y-2 ml-6 text-base leading-relaxed">
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-400 mt-1">•</span>
-                  <span>AI-powered resume analysis tailored to job descriptions</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-400 mt-1">•</span>
-                  <span>Multiple free AI models to choose from</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-400 mt-1">•</span>
-                  <span>Download results in Markdown or DOCX format</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-400 mt-1">•</span>
-                  <span>Auto-save job descriptions (resume data stays in-memory)</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Privacy Note */}
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-sm">
-              <p className="text-amber-200 leading-relaxed">
-                <strong className="font-semibold">Note:</strong> Your CV file is processed in-memory only and not stored permanently for privacy reasons.
-              </p>
-            </div>
-          </div>
-
-          {/* Footer Button */}
-          <div className="p-6 pt-0">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={onClose}
-              aria-label="Continue to Application"
-              className="w-full bg-gradient-to-br from-[#4a50caf6] via-[#6a6fc3d3] to-[#b33c7f] text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all"
-            >
-              Continue to Application
-            </motion.button>
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
-  );
-}
-
-// File Upload Component
-function FileUpload({ cvFile, onFileChange, dragActive, onDragHandlers }) {
-  return (
-    <div
-      className={`relative border-2 border-dashed rounded-2xl p-12 transition-all cursor-pointer ${
-        dragActive
-          ? 'border-blue-500 bg-blue-500/10'
-          : cvFile
-          ? 'border-green-500 bg-green-500/10'
-          : 'border-slate-600 hover:border-slate-500 bg-slate-700/30'
-      }`}
-      {...onDragHandlers}
-    >
-      <input
-        type="file"
-        accept=".pdf"
-        onChange={onFileChange}
-        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-      />
-      <div className="text-center pointer-events-none">
-        {cvFile ? (
-          <motion.div
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            className="flex flex-col items-center"
-          >
-            <CheckCircle2 className="w-16 h-16 text-green-400 mb-4" />
-            <p className="font-semibold text-xl text-white mb-2">{cvFile.name}</p>
-            <p className="text-gray-400">
-              {(cvFile.size / 1024).toFixed(2)} KB
-            </p>
-            <p className="text-sm text-gray-500 mt-2">Click to change file</p>
-          </motion.div>
-        ) : (
-          <div>
-            <Upload className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-            <p className="text-gray-300 font-medium mb-2 text-lg">
-              Drop your PDF here or click to browse
-            </p>
-            <p className="text-gray-500">PDF files only, max 5MB</p>  {/* Updated to match backend limit */}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// Step Indicator Component
-function StepIndicator({ currentStep }) {
-  const steps = [
-    { number: 1, label: 'Upload' },
-    { number: 2, label: 'Job Details' },
-    { number: 3, label: 'Analysis' }
-  ];
-  return (
-    <div className="flex items-center justify-center mb-12">
-      {steps.map((step, idx) => (
-        <div key={step.number} className="flex items-center">
-          <div className="flex flex-col items-center">
-            <motion.div
-              initial={false}
-              animate={{
-                scale: currentStep === step.number ? 1.1 : 1,
-                backgroundColor: currentStep > step.number
-                  ? 'rgba(34, 197, 94, 1)'
-                  : currentStep === step.number
-                  ? 'rgba(59, 130, 246, 1)'
-                  : 'rgba(71, 85, 105, 0.5)'
-              }}
-              className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-white shadow-lg"
-            >
-              {currentStep > step.number ? (
-                <CheckCircle2 className="w-7 h-7" />
-              ) : (
-                step.number
-              )}
-            </motion.div>
-            <p className="text-xs text-gray-400 mt-2 hidden sm:block">{step.label}</p>
-          </div>
-          {idx < steps.length - 1 && (
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{
-                width: currentStep > step.number ? '100%' : '0%',
-                backgroundColor: currentStep > step.number ? 'rgba(34, 197, 94, 1)' : 'rgba(71, 85, 105, 0.5)'
-              }}
-              className="h-1 w-16 sm:w-24 mx-2 rounded-full"
-            />
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// Download Button Component
-function DownloadButtons({ analysis, cvFileName }) {
-  const downloadMarkdown = () => {
-    const blob = new Blob([analysis], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `CV_Analysis_${cvFileName || 'result'}.md`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast.success('Markdown file downloaded!');
-  };
-  const downloadDocx = () => {
-    // Simple DOCX-like format (HTML that Word can open)
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>CV Analysis Report</title>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; padding: 40px; }
-          h1 { color: #2563eb; border-bottom: 3px solid #2563eb; padding-bottom: 10px; }
-          h2 { color: #1e40af; margin-top: 20px; }
-          p { margin: 10px 0; }
-          pre { background: #f3f4f6; padding: 15px; border-radius: 5px; white-space: pre-wrap; }
-        </style>
-      </head>
-      <body>
-        <h1>CV Optimization Analysis Report</h1>
-        <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
-        <hr>
-        <pre>${analysis}</pre>
-      </body>
-      </html>
-    `;
-    
-    const blob = new Blob([htmlContent], { type: 'application/msword' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `CV_Analysis_${cvFileName || 'result'}.doc`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast.success('Document file downloaded!');
-  };
-  return (
-    <div className="flex flex-col sm:flex-row gap-3">
-      <motion.button
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={downloadMarkdown}
-        className="flex-1 flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-lg border border-slate-600"
-      >
-        <FileDown className="w-5 h-5" />
-        Download Markdown
-      </motion.button>
-      <motion.button
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={downloadDocx}
-        className="flex-1 flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-lg border border-slate-600"
-      >
-        <BookOpen className="w-5 h-5" />
-        Download Document
-      </motion.button>
-    </div>
-  );
-}
+import useStore from './store';
+import WelcomeModal from './components/WelcomeModal';
+import FileUpload from './components/FileUpload';
+import StepIndicator from './components/StepIndicator';
+import DownloadButtons from './components/DownloadButtons';
 
 function App() {
   const [step, setStep] = useState(1);
@@ -336,7 +55,7 @@ function App() {
     
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
-      if (file.type === 'application/pdf' && file.size <= 5 * 1024 * 1024) {  // Added size check to match backend
+      if (file.type === 'application/pdf' && file.size <= 5 * 1024 * 1024) { 
         setLocalCvFile(file);
         setCvFile({ name: file.name, size: file.size });
         setError('');
@@ -377,7 +96,7 @@ function App() {
     formData.append('jobDescription', jobDesc);
     formData.append('model', model);
     try {
-      const apiEndpoint = import.meta.env.VITE_API_ENDPOINT || '/api/analyze';  // Fallback for dev
+      const apiEndpoint = import.meta.env.VITE_API_ENDPOINT;
       const res = await fetch(apiEndpoint, {
         method: 'POST',
         body: formData,
@@ -422,7 +141,7 @@ function App() {
   };
 
   const canProceedToStep2 = localCvFile !== null;
-  const canAnalyze = localCvFile && jobDesc.trim().length >= 50;  // Match min length from validation
+  const canAnalyze = localCvFile && jobDesc.trim().length >= 50;  
 
   const dragHandlers = {
     onDragEnter: handleDrag,
@@ -443,6 +162,7 @@ function App() {
         
         <div className="relative max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
           {/* Header */}
+          
           <motion.header
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -632,10 +352,10 @@ function App() {
                     transition={{ delay: 0.2 }}
                   >
                     <div className="bg-[#1A0F3D]/30 rounded-2xl p-6 sm:p-8 border border-slate-600/50 mb-6">
-                      <div className="prose prose-invert max-w-none">
-                        <div className="whitespace-pre-wrap text-[#E0E0E0] leading-relaxed">
+                      <div className="prose prose-invert max-w-none text-[#E0E0E0] leading-relaxed">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
                           {analysis}
-                        </div>
+                        </ReactMarkdown>
                       </div>
                     </div>
                     

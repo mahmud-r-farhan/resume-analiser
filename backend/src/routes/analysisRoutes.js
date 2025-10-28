@@ -2,18 +2,29 @@ const express = require('express');
 const { analyzeCV } = require('../controllers/analysisController');
 const upload = require('../middleware/uploadMiddleware');
 const { validateAnalysisRequest } = require('../middleware/validation');
+const uploadLimiter = require('../middleware/uploadLimiter');
+const UploadLog = require('../models/UploadLog');
 
 const router = express.Router();
 
-// POST /api/analyze
 router.post(
   '/analyze',
-  upload.single('cv'),
-  validateAnalysisRequest,
-  analyzeCV
+  uploadLimiter(),
+  upload.single('cv'),      
+  validateAnalysisRequest,    
+  async (req, res, next) => {
+    try {
+      await analyzeCV(req, res, next);  // Call analyzeCV, which handles res if success
+      // Log successful upload attempt (only if no error thrown)
+      if (req._uploadUserIdentifier) {
+        await UploadLog.create({ userIdentifier: req._uploadUserIdentifier });
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
 );
 
-// GET /api/history (optional - if using MongoDB)
 router.get('/history', async (req, res, next) => {
   try {
     const Analysis = require('../models/Analysis');
@@ -21,7 +32,7 @@ router.get('/history', async (req, res, next) => {
       .select('-__v')
       .sort({ createdAt: -1 })
       .limit(10);
-    
+
     res.json({ success: true, data: analyses });
   } catch (error) {
     next(error);

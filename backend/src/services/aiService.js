@@ -10,19 +10,12 @@ class AIService {
       baseURL: 'https://openrouter.ai/api/v1',
       apiKey: process.env.OPENROUTER_API_KEY,
       defaultHeaders: {
-        'HTTP-Referer': process.env.APP_URL || 'https://resumeanalizer.vercel.app', // Simplified; add more if needed
+        'HTTP-Referer': process.env.APP_URL || 'https://resumeanalizer.vercel.app',
         'X-Title': 'CV Optimizer'
       }
     });
   }
 
-  /**
-   * Analyze CV against job description
-   * @param {string} cvText - Extracted CV text
-   * @param {string} jobDescription - Job description
-   * @param {string} model - AI model to use
-   * @returns {Promise<Object>} Analysis results
-   */
   async analyzeCV(cvText, jobDescription, model) {
     const prompt = this.buildPrompt(cvText, jobDescription);
     // Fallback to a valid default if needed
@@ -67,7 +60,7 @@ class AIService {
         if (error.message.includes('data policy')) {
           throw new Error('OpenRouter data policy issue: Please enable "free endpoints that may publish prompts" in your account settings at https://openrouter.ai/settings/privacy to use free models.');
         } else {
-          throw new Error(`Model not found: ${effectiveModel}. Try alternatives like 'deepseek/deepseek-r1:free' or check OpenRouter docs at https://openrouter.ai/models?max_price=0`);
+          throw new Error(`Model not found: ${effectiveModel}. Try alternatives like \'deepseek/deepseek-chat-v3.1:free\' or check OpenRouter docs at https://openrouter.ai/models?max_price=0`);
         }
       } else if (error.status === 400 && error.message.includes('not a valid model ID')) {
         throw new Error(`Invalid model ID: ${effectiveModel}. Please select a valid model.`);

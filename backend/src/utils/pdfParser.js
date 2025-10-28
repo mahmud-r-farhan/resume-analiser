@@ -1,15 +1,8 @@
-const fs = require('fs').promises;
 const pdf = require('pdf-parse');
 
-/**
- * Extract text from PDF file
- * @param {string} filePath - Path to PDF file
- * @returns {Promise<string>} Extracted text
- */
-async function extractTextFromPDF(filePath) {
+async function extractTextFromPDF(buffer) {
   try {
-    const dataBuffer = await fs.readFile(filePath);
-    const data = await pdf(dataBuffer);
+    const data = await pdf(buffer);
     
     if (!data.text || data.text.trim().length === 0) {
       throw new Error('PDF appears to be empty or text could not be extracted');
@@ -22,20 +15,7 @@ async function extractTextFromPDF(filePath) {
   }
 }
 
-/**
- * Clean up uploaded file
- * @param {string} filePath - Path to file
- */
-async function cleanupFile(filePath) {
-  try {
-    await fs.unlink(filePath);
-    console.log(`Cleaned up file: ${filePath}`);
-  } catch (error) {
-    console.error(`Failed to delete file ${filePath}:`, error);
-  }
-}
 
-module.exports = { 
-  extractTextFromPDF, 
-  cleanupFile 
+module.exports = {
+  extractTextFromPDF
 };
