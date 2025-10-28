@@ -1,75 +1,80 @@
 import { motion } from 'framer-motion';
-import { toast } from 'sonner';
-import { FileDown, BookOpen } from 'lucide-react';
+import jsPDF from 'jspdf';
+import { Download } from 'lucide-react';
 
 function DownloadButtons({ analysis, cvFileName }) {
-  const downloadMarkdown = () => {
+  const handleDownloadMD = () => {
     const blob = new Blob([analysis], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `CV_Analysis_${cvFileName || 'result'}.md`;
-    document.body.appendChild(a);
+    a.download = `${cvFileName || 'cv'}_optimization.md`;
     a.click();
-    document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast.success('Markdown file downloaded!');
   };
-  const downloadDocx = () => {
-    // Simple DOCX-like format (HTML that Word can open)
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>CV Analysis Report</title>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; padding: 40px; }
-          h1 { color: #2563eb; border-bottom: 3px solid #2563eb; padding-bottom: 10px; }
-          h2 { color: #1e40af; margin-top: 20px; }
-          p { margin: 10px 0; }
-          pre { background: #f3f4f6; padding: 15px; border-radius: 5px; white-space: pre-wrap; }
-        </style>
-      </head>
-      <body>
-        <h1>CV Optimization Analysis Report</h1>
-        <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
-        <hr>
-        <pre>${analysis}</pre>
-      </body>
-      </html>
-    `;
-    
-    const blob = new Blob([htmlContent], { type: 'application/msword' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `CV_Analysis_${cvFileName || 'result'}.doc`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast.success('Document file downloaded!');
+
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    let y = 10;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+
+    analysis.split('\n').forEach((line) => {
+      if (line.trim() === '') {
+        y += 5; // Add space for empty lines
+        return;
+      }
+
+      let fontSize = 12;
+      let fontStyle = 'normal';
+      let text = line;
+
+      if (line.startsWith('# ')) {
+        fontSize = 20;
+        fontStyle = 'bold';
+        text = line.slice(2);
+      } else if (line.startsWith('## ')) {
+        fontSize = 16;
+        fontStyle = 'bold';
+        text = line.slice(3);
+      } else if (line.startsWith('### ')) {
+        fontSize = 14;
+        fontStyle = 'bold';
+        text = line.slice(4);
+      } else if (line.startsWith('- ') || line.startsWith('* ')) {
+        text = '• ' + line.slice(2);
+      }
+
+      doc.setFontSize(fontSize);
+      doc.setFont('helvetica', fontStyle);
+
+      const wrappedText = doc.splitTextToSize(text, 180);
+      doc.text(wrappedText, 10, y);
+      y += wrappedText.length * (fontSize / 2 + 2);
+    });
+
+    doc.save(`${cvFileName || 'cv'}_optimization.pdf`);
   };
+
   return (
-    <div className="flex flex-col sm:flex-row gap-3">
+    <div className="flex flex-col sm:flex-row gap-3 mb-4">
       <motion.button
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
-        onClick={downloadMarkdown}
-        className="flex-1 flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-lg border border-slate-600"
+        onClick={handleDownloadMD}
+        className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-[#4DCFFF] to-[#9C4DFF] text-white font-semibold rounded-xl transition-all shadow-lg"
       >
-        <FileDown className="w-5 h-5" />
-        Download Markdown
+        <Download className="w-5 h-5" />
+        Download as Markdown
       </motion.button>
       <motion.button
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
-        onClick={downloadDocx}
-        className="flex-1 flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-lg border border-slate-600"
+        onClick={handleDownloadPDF}
+        className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-[#FF6B9C] to-[#9C4DFF] text-white font-semibold rounded-xl transition-all shadow-lg"
       >
-        <BookOpen className="w-5 h-5" />
-        Download Document
+        <Download className="w-5 h-5" />
+        Download as PDF
       </motion.button>
     </div>
   );
