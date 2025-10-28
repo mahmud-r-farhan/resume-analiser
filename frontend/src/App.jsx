@@ -19,7 +19,6 @@ const useStore = create(
       analysis: '',
       setCvFile: (file) => set({ cvFile: file }),
       setJobDesc: (desc) => set({ jobDesc: desc }),
-      setModel: (model) => set({ model }),
       setAnalysis: (analysis) => set({ analysis }),
       clearStore: () => set({ cvFile: null, jobDesc: '', analysis: '', model: 'deepseek/deepseek-chat-v3.1:free' }),
     }),
@@ -27,7 +26,6 @@ const useStore = create(
       name: 'cv-optimizer-storage',
       partialize: (state) => ({
         jobDesc: state.jobDesc,
-        model: state.model,
       }),
     }
   )
@@ -37,7 +35,7 @@ const useStore = create(
 function WelcomeModal({ isOpen, onClose }) {
   if (!isOpen) return null;
   return (
-    <AnimatePresence>
+       <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -50,32 +48,41 @@ function WelcomeModal({ isOpen, onClose }) {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-slate-800 rounded-2xl shadow-2xl max-w-lg w-full border border-slate-700 overflow-hidden"
+          className="bg-slate-800 rounded-2xl shadow-2xl max-w-xl w-full border border-slate-700 overflow-hidden"
         >
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Info className="w-8 h-8 text-white" />
-                <h2 className="text-2xl font-bold text-white">Welcome to CV Optimizer</h2>
-              </div>
+          {/* Header */}
+          <div className=" bg-gradient-to-br from-[#192a61] via-[#301e6a] to-[#732860] p-6">
+            <div className="flex items-center gap-3">
+              <Info className="w-8 h-8 text-white" />
+              <h2 className="text-3xl font-extrabold text-white tracking-tight">
+                Welcome to Resume Optimizer
+              </h2>
             </div>
           </div>
-          
-          <div className="p-6 space-y-4">
+
+          {/* Body */}
+          <div className="p-6 space-y-6">
+            {/* Info Box */}
             <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
-              <p className="text-gray-200 leading-relaxed">
-                This application uses <span className="font-semibold text-blue-400">OpenRouter's free LLM models API</span> to analyze and optimize your CV for specific job positions.
+              <p className="text-gray-200 leading-relaxed text-base">
+                This application uses{" "}
+                <span className="font-semibold text-blue-400">
+                  OpenRouter's free LLM models API
+                </span>{" "}
+                to analyze and optimize your resume for specific job positions.
               </p>
             </div>
-            <div className="space-y-3 text-gray-300">
-              <h3 className="font-semibold text-white flex items-center gap-2">
+
+            {/* Features */}
+            <div className="space-y-4 text-gray-300">
+              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-green-400" />
                 Key Features:
               </h3>
-              <ul className="space-y-2 ml-7 text-sm">
+              <ul className="space-y-2 ml-6 text-base leading-relaxed">
                 <li className="flex items-start gap-2">
                   <span className="text-blue-400 mt-1">•</span>
-                  <span>AI-powered CV analysis tailored to job descriptions</span>
+                  <span>AI-powered resume analysis tailored to job descriptions</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-blue-400 mt-1">•</span>
@@ -91,18 +98,23 @@ function WelcomeModal({ isOpen, onClose }) {
                 </li>
               </ul>
             </div>
+
+            {/* Privacy Note */}
             <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-sm">
-              <p className="text-amber-200">
-                <strong>Note:</strong> Your CV file is processed in-memory only and not stored permanently for privacy reasons.
+              <p className="text-amber-200 leading-relaxed">
+                <strong className="font-semibold">Note:</strong> Your CV file is processed in-memory only and not stored permanently for privacy reasons.
               </p>
             </div>
           </div>
+
+          {/* Footer Button */}
           <div className="p-6 pt-0">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={onClose}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all"
+              aria-label="Continue to Application"
+              className="w-full bg-gradient-to-br from-[#4a50caf6] via-[#6a6fc3d3] to-[#b33c7f] text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all"
             >
               Continue to Application
             </motion.button>
@@ -163,7 +175,7 @@ function FileUpload({ cvFile, onFileChange, dragActive, onDragHandlers }) {
 // Step Indicator Component
 function StepIndicator({ currentStep }) {
   const steps = [
-    { number: 1, label: 'Upload CV' },
+    { number: 1, label: 'Upload' },
     { number: 2, label: 'Job Details' },
     { number: 3, label: 'Analysis' }
   ];
@@ -301,7 +313,6 @@ function App() {
 
   const handleWelcomeClose = () => {
     setShowWelcome(false);
-    localStorage.setItem('cv-optimizer-welcome-seen', 'true');
   };
 
   const handleDrag = (e) => {
@@ -361,7 +372,7 @@ function App() {
     formData.append('jobDescription', jobDesc);
     formData.append('model', model);
     try {
-      const apiEndpoint = import.meta.env.VITE_API_ENDPOINT || '/api/analyze';
+      const apiEndpoint = import.meta.env.VITE_API_ENDPOINT;
       
       const res = await fetch(apiEndpoint, {
         method: 'POST',
