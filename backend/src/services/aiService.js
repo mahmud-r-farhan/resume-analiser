@@ -10,8 +10,8 @@ class AIService {
       baseURL: 'https://openrouter.ai/api/v1',
       apiKey: process.env.OPENROUTER_API_KEY,
       defaultHeaders: {
-        'HTTP-Referer': process.env.APP_URL  || 'https://resumeanalizer.vercel.app' || 'https://resumeanaliser.vercel.app/' || 'https://resume-analiser.vercel.app' || 'https://cvoptimizer.vercel.app',
-        'X-Title': 'CV Optimizer'
+        'HTTP-Referer': process.env.APP_URL || 'https://resumeanalizer.vercel.app', 
+        'X-Title': 'Rusume Optimizer'
       }
     });
   }
@@ -25,8 +25,8 @@ class AIService {
    */
   async analyzeCV(cvText, jobDescription, model) {
     const prompt = this.buildPrompt(cvText, jobDescription);
-    // Fallback to a valid default if needed (optional safety net)
-    const effectiveModel = model || 'deepseek/deepseek-v3-base:free';
+    // Fallback to a valid default if needed
+    const effectiveModel = model || 'deepseek/deepseek-chat-v3.1:free';
 
     try {
       const completion = await this.openai.chat.completions.create({
@@ -63,8 +63,10 @@ class AIService {
         throw new Error('Rate limit exceeded. Please try again later.');
       } else if (error.status === 500) {
         throw new Error('AI service is temporarily unavailable');
+      } else if (error.status === 404) {
+        throw new Error(`Model not found: ${effectiveModel}. Try alternatives like 'deepseek/deepseek-chat-v3.1:free' or check OpenRouter docs.`);
       } else if (error.status === 400 && error.message.includes('not a valid model ID')) {
-        throw new Error(`Invalid model ID: ${model}. Please select a valid model.`);
+        throw new Error(`Invalid model ID: ${effectiveModel}. Please select a valid model.`);
       }
       
       throw new Error(`AI analysis failed: ${error.message}`);

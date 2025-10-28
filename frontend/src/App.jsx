@@ -15,13 +15,13 @@ const useStore = create(
     (set) => ({
       cvFile: null,
       jobDesc: '',
-      model: 'deepseek/deepseek-v3-base:free',
+      model: 'deepseek/deepseek-chat-v3.1:free',
       analysis: '',
       setCvFile: (file) => set({ cvFile: file }),
       setJobDesc: (desc) => set({ jobDesc: desc }),
       setModel: (model) => set({ model }),
       setAnalysis: (analysis) => set({ analysis }),
-      clearStore: () => set({ cvFile: null, jobDesc: '', analysis: '', model: 'deepseek/deepseek-v3-base:free' }),
+      clearStore: () => set({ cvFile: null, jobDesc: '', analysis: '', model: 'deepseek/deepseek-chat-v3.1:free' }),
     }),
     {
       name: 'cv-optimizer-storage',
@@ -533,8 +533,8 @@ function App() {
                       onChange={(e) => setModel(e.target.value)}
                       className="w-full px-4 py-3 bg-[#1A0F3D]/50 border border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-white"
                     >
-                      <option value="deepseek/deepseek-v3-base:free">DeepSeek: V3 Base (Free) - Technical Analysis</option>
-                      <option value="google/gemini-2.5-pro-exp-03-25:free">Google: Gemini 2.5 Pro Exp (Free) - Advanced Reasoning</option>
+                      <option value="deepseek/deepseek-chat-v3.1:free">DeepSeek: V3.1 Chat (Free) - Technical Analysis</option>
+                      <option value="google/gemini-2.5-flash-preview-0925:free">Google: Gemini 2.5 Flash Preview (Free) - Advanced Reasoning</option>
                       <option value="mistralai/mistral-small-3.1-24b-instruct:free">Mistral: Small 3.1 Instruct (Free) - Efficient Optimization</option>
                       <option value="meta-llama/llama-4-maverick:free">Meta: Llama 4 Maverick (Free) - Comprehensive Review</option>
                     </select>
