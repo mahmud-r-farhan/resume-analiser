@@ -1,0 +1,25 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="mainGradient" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9C4DFF"/> {/* Bright Purple Accent */}
+      <stop offset="1" stop-color="#FF6B9C"/> {/* Vibrant Pink Accent */}
+    </linearGradient>
+    <radialGradient id="sparkleGradient" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(48 16) rotate(90) scale(16)">
+      <stop stop-color="#4DCFFF"/> {/* Light Blue Data Flow */}
+      <stop offset="1" stop-color="#4DCFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  {/* Main Document Shape - Rounded rectangle as base */}
+  <rect x="8" y="8" width="48" height="48" rx="10" fill="url(#mainGradient)"/>
+
+  {/* Simplified lines representing document content */}
+  <rect x="20" y="22" width="24" height="4" rx="1" fill="#FFFFFF" fill-opacity="0.8"/>
+  <rect x="20" y="30" width="16" height="4" rx="1" fill="#FFFFFF" fill-opacity="0.6"/>
+  <rect x="20" y="38" width="20" height="4" rx="1" fill="#FFFFFF" fill-opacity="0.7"/>
+
+  {/* Sparkle/Star element */}
+  <g transform="translate(42 10) scale(0.8)">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M10 0L12.9398 6.54508L20 7.5L14.7011 12.9549L16.4894 20L10 16.5451L3.51062 20L5.29891 12.9549L0 7.5L7.06018 6.54508L10 0Z" fill="url(#sparkleGradient)"/>
+  </g>
+</svg>

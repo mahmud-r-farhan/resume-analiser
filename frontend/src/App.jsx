@@ -15,13 +15,13 @@ const useStore = create(
     (set) => ({
       cvFile: null,
       jobDesc: '',
-      model: 'z-ai/glm-4-5-air:free',
+      model: 'deepseek/deepseek-v3-base:free',
       analysis: '',
       setCvFile: (file) => set({ cvFile: file }),
       setJobDesc: (desc) => set({ jobDesc: desc }),
       setModel: (model) => set({ model }),
       setAnalysis: (analysis) => set({ analysis }),
-      clearStore: () => set({ cvFile: null, jobDesc: '', analysis: '', model: 'z-ai/glm-4-5-air:free' }),
+      clearStore: () => set({ cvFile: null, jobDesc: '', analysis: '', model: 'deepseek/deepseek-v3-base:free' }),
     }),
     {
       name: 'cv-optimizer-storage',
@@ -410,9 +410,9 @@ function App() {
     <>
       <WelcomeModal isOpen={showWelcome} onClose={handleWelcomeClose} />
       
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent"></div>
+      <div className="min-h-screen bg-gradient-to-br from-[#1A0F3D] via-[#1A0F3D] to-[#4B2B7D] text-white">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#4DCFFF]/20 via-transparent to-transparent"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-[#9C4DFF]/20 via-transparent to-transparent"></div>
         
         <Toaster position="top-right" expand={true} richColors />
         
@@ -428,14 +428,14 @@ function App() {
                 animate={{ rotate: 360 }}
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               >
-                <Sparkles className="w-10 h-10 text-blue-500 mr-3" />
+                <Sparkles className="w-10 h-10 text-[#4DCFFF] mr-3" />
               </motion.div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Professional CV Optimizer
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-[#4DCFFF] via-[#9C4DFF] to-[#FF6B9C] bg-clip-text text-transparent">
+                Professional Resume Optimizer
               </h1>
             </div>
-            <p className="text-gray-400 text-base sm:text-lg max-w-2xl mx-auto">
-              AI-powered resume analysis and optimization for your career advancement
+            <p className="text-[#E0E0E0] text-base sm:text-lg max-w-2xl mx-auto">
+              AI-powered resume analysis and enhancement designed to boost your career growth.
             </p>
           </motion.header>
           <StepIndicator currentStep={step} />
@@ -462,14 +462,14 @@ function App() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="bg-slate-800/40 backdrop-blur-xl rounded-3xl shadow-2xl p-6 sm:p-10 border border-slate-700/50"
+                className="bg-[#1A0F3D]/40 backdrop-blur-xl rounded-3xl shadow-2xl p-6 sm:p-10 border border-[#4B2B7D]/50"
               >
                 <div className="mb-6">
                   <h2 className="text-2xl sm:text-3xl font-bold mb-2 flex items-center">
                     <Upload className="w-8 h-8 mr-3 text-blue-400" />
                     Upload Your Resume
                   </h2>
-                  <p className="text-gray-400">Step 1: Begin by uploading your current CV in PDF format</p>
+                  <p className="text-[#E0E0E0]">Step 1: Start by uploading your current resume in PDF format. Our AI will analyze it to identify strengths, weaknesses, and opportunities for improvement.</p>
                 </div>
                 <FileUpload
                   cvFile={cvFile}
@@ -483,7 +483,7 @@ function App() {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setStep(2)}
                     disabled={!canProceedToStep2}
-                    className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 px-8 rounded-xl disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed transition-all shadow-lg disabled:opacity-50"
+                    className="flex items-center gap-2 bg-gradient-to-r from-[#9C4DFF] to-[#FF6B9C] text-white font-semibold py-4 px-8 rounded-xl disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed transition-all shadow-lg disabled:opacity-50"
                   >
                     Continue to Job Details
                     <ArrowRight className="w-5 h-5" />
@@ -498,40 +498,40 @@ function App() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="bg-slate-800/40 backdrop-blur-xl rounded-3xl shadow-2xl p-6 sm:p-10 border border-slate-700/50"
+                className="bg-[#1A0F3D]/40 backdrop-blur-xl rounded-3xl shadow-2xl p-6 sm:p-10 border border-[#4B2B7D]/50"
               >
                 <div className="mb-6">
                   <h2 className="text-2xl sm:text-3xl font-bold mb-2 flex items-center">
                     <FileText className="w-8 h-8 mr-3 text-purple-400" />
                     Target Job Description
                   </h2>
-                  <p className="text-gray-400">Step 2: Provide the complete job posting details for analysis</p>
+                  <p className="text-[#E0E0E0]">Step 2: Provide the complete job posting details for analysis</p>
                 </div>
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-3">
+                    <label className="block text-sm font-semibold text-[#E0E0E0] mb-3">
                       Job Posting Content
                     </label>
                     <textarea
                       value={jobDesc}
                       onChange={(e) => setJobDesc(e.target.value)}
                       placeholder="Paste the complete job description here, including:&#10;• Job title and company name&#10;• Key responsibilities&#10;• Required qualifications&#10;• Preferred skills and experience&#10;• Company culture and benefits"
-                      className="w-full px-6 py-4 bg-slate-700/50 border border-slate-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none text-white placeholder-gray-500"
+                      className="w-full px-6 py-4 bg-[#1A0F3D]/50 border border-slate-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none text-white placeholder-gray-500"
                       rows="14"
                     />
-                    <div className="flex justify-between items-center mt-3 text-sm text-gray-500">
+                    <div className="flex justify-between items-center mt-3 text-sm text-[#E0E0E0]/70">
                       <span>{jobDesc.length} characters</span>
                       <span>{jobDesc.trim().split(/\s+/).filter(w => w).length} words</span>
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-3">
+                    <label className="block text-sm font-semibold text-[#E0E0E0] mb-3">
                       AI Model Selection
                     </label>
                     <select
                       value={model}
                       onChange={(e) => setModel(e.target.value)}
-                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-white"
+                      className="w-full px-4 py-3 bg-[#1A0F3D]/50 border border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-white"
                     >
                       <option value="deepseek/deepseek-v3-base:free">DeepSeek: V3 Base (Free) - Technical Analysis</option>
                       <option value="google/gemini-2.5-pro-exp-03-25:free">Google: Gemini 2.5 Pro Exp (Free) - Advanced Reasoning</option>
@@ -545,7 +545,7 @@ function App() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setStep(1)}
-                    className="flex items-center justify-center gap-2 px-6 py-4 border-2 border-slate-600 text-gray-300 font-semibold rounded-xl hover:bg-slate-700/50 transition-all"
+                    className="flex items-center justify-center gap-2 px-6 py-4 border-2 border-[#4B2B7D] text-[#E0E0E0] font-semibold rounded-xl hover:bg-[#1A0F3D]/50 transition-all"
                   >
                     <ArrowLeft className="w-5 h-5" />
                     Back to Upload
@@ -555,7 +555,7 @@ function App() {
                     whileTap={{ scale: 0.98 }}
                     onClick={handleSubmit}
                     disabled={!canAnalyze}
-                    className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 px-8 rounded-xl disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed transition-all shadow-lg disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#9C4DFF] to-[#FF6B9C] text-white font-semibold py-4 px-8 rounded-xl disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed transition-all shadow-lg disabled:opacity-50"
                   >
                     <Zap className="w-5 h-5" />
                     Start AI Analysis
@@ -570,7 +570,7 @@ function App() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="bg-slate-800/40 backdrop-blur-xl rounded-3xl shadow-2xl p-6 sm:p-10 border border-slate-700/50"
+                className="bg-[#1A0F3D]/40 backdrop-blur-xl rounded-3xl shadow-2xl p-6 sm:p-10 border border-slate-700/50"
               >
                 <div className="mb-6">
                   <h2 className="text-2xl sm:text-3xl font-bold mb-2 flex items-center">
@@ -585,9 +585,9 @@ function App() {
                     animate={{ opacity: 1 }}
                     className="flex flex-col items-center justify-center py-20"
                   >
-                    <Loader2 className="w-16 h-16 text-blue-400 animate-spin mb-6" />
-                    <p className="text-xl text-gray-300 mb-2">Analyzing your CV with AI...</p>
-                    <p className="text-gray-500">This typically takes 30-60 seconds</p>
+                    <Loader2 className="w-16 h-16 text-[#4DCFFF] animate-spin mb-6" />
+                    <p className="text-xl text-[#E0E0E0] mb-2">Analyzing your CV with AI...</p>
+                    <p className="text-[#E0E0E0]/70">This typically takes 30-60 seconds</p>
                   </motion.div>
                 ) : analysis ? (
                   <motion.div
@@ -595,9 +595,9 @@ function App() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
                   >
-                    <div className="bg-slate-700/30 rounded-2xl p-6 sm:p-8 border border-slate-600/50 mb-6">
+                    <div className="bg-[#1A0F3D]/30 rounded-2xl p-6 sm:p-8 border border-slate-600/50 mb-6">
                       <div className="prose prose-invert max-w-none">
-                        <div className="whitespace-pre-wrap text-gray-200 leading-relaxed">
+                        <div className="whitespace-pre-wrap text-[#E0E0E0] leading-relaxed">
                           {analysis}
                         </div>
                       </div>
@@ -614,7 +614,7 @@ function App() {
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           onClick={clearAnalysisAndContinue}
-                          className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 px-8 rounded-xl transition-all shadow-lg"
+                          className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#9C4DFF] to-[#FF6B9C] text-white font-semibold py-4 px-8 rounded-xl transition-all shadow-lg"
                         >
                           <RefreshCw className="w-5 h-5" />
                           Analyze Another Position
