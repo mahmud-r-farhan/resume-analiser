@@ -124,7 +124,7 @@ function WelcomeModal({ isOpen, onClose }) {
               className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 sm:p-4 text-xs sm:text-sm"
             >
               <p className="text-amber-200 leading-relaxed">
-                <strong className="font-semibold">Note:</strong> Your CV file is processed in-memory only and not stored permanently for privacy reasons.
+                <strong className="font-semibold">Note:</strong> Your resume file is processed in-memory only and not stored permanently for privacy reasons.
               </p>
             </motion.div>
           </div>
