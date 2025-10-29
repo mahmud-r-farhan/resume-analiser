@@ -8,7 +8,8 @@ function getAnonIdentifier(req) {
   return crypto.createHash('sha256').update(`${ip}|${ua}`).digest('hex');
 }
 
-module.exports = function uploadLimiter(maxUploads = 4, windowMs = 24 * 60 * 60 * 1000) {
+// MaxUpload :)
+module.exports = function uploadLimiter(maxUploads = 120, windowMs = 24 * 60 * 60 * 1000) {
   return async function (req, res, next) {
     try {
       // Identify user (if authenticated) or fallback to anonymous fingerprint

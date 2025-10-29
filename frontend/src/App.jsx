@@ -120,7 +120,7 @@ function App() {
         const data = await res.json();
         if (res.status === 429) {
           setUploadLimitReached(true);
-          toast.warning(data.message || 'Upload limit reached: max 4 per 24 hours.');
+          toast.warning(data.message);
           setStep(2); 
           return; 
         } else {
