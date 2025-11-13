@@ -3,11 +3,9 @@ const pdf = require('pdf-parse');
 async function extractTextFromPDF(buffer) {
   try {
     const data = await pdf(buffer);
-    
     if (!data.text || data.text.trim().length === 0) {
-      throw new Error('PDF appears to be empty or text could not be extracted');
+      throw new Error('PDF appears to be empty or text could not be extracted. Ensure the PDF is text-based, not scanned.');
     }
-    
     return data.text.trim();
   } catch (error) {
     console.error('PDF extraction error:', error);
@@ -15,7 +13,4 @@ async function extractTextFromPDF(buffer) {
   }
 }
 
-
-module.exports = {
-  extractTextFromPDF
-};
+module.exports = { extractTextFromPDF };
