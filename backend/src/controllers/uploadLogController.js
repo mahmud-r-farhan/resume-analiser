@@ -1,4 +1,4 @@
-const UploadLog = require('../models/uploadLog');
+const UploadLog = require('../models/UploadLog');
 
 // Controller to fetch all upload logs
 exports.getUploadLogs = async (req, res) => {
