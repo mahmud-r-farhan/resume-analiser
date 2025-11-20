@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { FileText, ArrowLeft, Zap } from 'lucide-react';
+import { FileText, ArrowLeft, Zap, CheckCircle2 } from 'lucide-react';
 
 function Step2({ jobDesc, setJobDesc, model, setModel, setStep, handleSubmit, canAnalyze, loading, uploadLimitReached }) {
   return (
@@ -15,17 +15,15 @@ function Step2({ jobDesc, setJobDesc, model, setModel, setStep, handleSubmit, ca
           <FileText className="w-8 h-8 mr-3 text-purple-400" />
           Target Job Description
         </h2>
-        <p className="text-[#E0E0E0]">Step 2: Provide the complete job posting details for analysis</p>
+        <p className="text-[#E0E0E0]">Step 2: Paste the job details for tailored premium optimization.</p>
       </div>
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-semibold text-[#E0E0E0] mb-3">
-            Job Posting Content
-          </label>
+          <label className="block text-sm font-semibold text-[#E0E0E0] mb-3">Job Posting Content</label>
           <textarea
             value={jobDesc}
             onChange={(e) => setJobDesc(e.target.value)}
-            placeholder="Paste the complete job description here, including:&#10;• Job title and company name&#10;• Key responsibilities&#10;• Required qualifications&#10;• Preferred skills and experience&#10;• Company culture and benefits"
+            placeholder="Paste complete job description..."
             className="w-full px-6 py-4 bg-[#1A0F3D]/50 border border-slate-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none text-white placeholder-gray-500"
             rows="14"
           />
@@ -35,18 +33,17 @@ function Step2({ jobDesc, setJobDesc, model, setModel, setStep, handleSubmit, ca
           </div>
         </div>
         <div>
-          <label className="block text-sm font-semibold text-[#E0E0E0] mb-3">
-            AI Model Selection
-          </label>
+          <label className="block text-sm font-semibold text-[#E0E0E0] mb-3">AI Model Selection</label>
           <select
             value={model}
             onChange={(e) => setModel(e.target.value)}
-            className="w-full px-4 py-3 bg-[#1A0F3D]/50 border border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-white"
+            className="w-full px-4 py-3 bg-[#1A0F3D]/85 border border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-white"
           >
-            <option value="deepseek/deepseek-chat-v3.1:free">DeepSeek: V3.1 Chat (Free) - Technical Analysis</option>
-            <option value="google/gemini-2.5-flash-preview-0925:free">Google: Gemini 2.5 Flash Preview (Free) - Advanced Reasoning</option>
-            <option value="mistralai/mistral-small-3.1-24b-instruct:free">Mistral: Small 3.1 Instruct (Free) - Efficient Optimization</option>
-            <option value="meta-llama/llama-4-maverick:free">Meta: Llama 4 Maverick (Free) - Comprehensive Review</option>
+            <option value="mistralai/mistral-small-3.1-24b-instruct:free">Mistral Small 3.1 24B (Free) - Efficient</option>
+            <option value="deepseek/deepseek-r1:free">DeepSeek R1 (Free) - Best reasoning (o1-level)</option>
+            <option value="deepseek/deepseek-v3:free">DeepSeek V3 (Free) - General/technical</option>
+            <option value="google/gemma-2-27b-it:free">Google Gemma 2 27B (Free) - Advanced</option>
+            <option value="meta-llama/llama-3.1-70b-instruct:free">Meta Llama 3.1 70B (Free) - Comprehensive</option>
           </select>
         </div>
       </div>
@@ -65,10 +62,10 @@ function Step2({ jobDesc, setJobDesc, model, setModel, setStep, handleSubmit, ca
           whileTap={{ scale: 0.98 }}
           onClick={handleSubmit}
           disabled={!canAnalyze || loading || uploadLimitReached}
-          className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#9C4DFF] to-[#FF6B9C] text-white font-semibold py-4 px-8 rounded-xl disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed transition-all shadow-lg disabled:opacity-50"
+          className="flex-1 flex items-center justify-center gap-2 bg-linear-to-r from-[#9C4DFF] to-[#FF6B9C] text-white font-semibold py-4 px-8 rounded-xl disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed transition-all shadow-lg disabled:opacity-50"
         >
           <Zap className="w-5 h-5" />
-          Start AI Analysis
+          Start Premium Analysis
         </motion.button>
       </div>
     </motion.section>

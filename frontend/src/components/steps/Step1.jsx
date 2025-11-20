@@ -16,7 +16,7 @@ function Step1({ cvFile, handleFileChange, dragActive, dragHandlers, setStep, ca
           <Upload className="w-8 h-8 mr-3 text-blue-400" />
           Upload Your Resume
         </h2>
-        <p className="text-[#E0E0E0]">Step 1: Start by uploading your current resume in PDF format. Our AI will analyze it to identify strengths, weaknesses, and opportunities for improvement.</p>
+        <p className="text-[#E0E0E0]">Step 1: Upload your PDF resume. Our premium AI will extract and prepare it for optimization.</p>
       </div>
       <FileUpload
         cvFile={cvFile}
@@ -30,7 +30,7 @@ function Step1({ cvFile, handleFileChange, dragActive, dragHandlers, setStep, ca
           whileTap={{ scale: 0.98 }}
           onClick={() => setStep(2)}
           disabled={!canProceedToStep2}
-          className="flex items-center gap-2 bg-gradient-to-r from-[#9C4DFF] to-[#FF6B9C] text-white font-semibold py-4 px-8 rounded-xl disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed transition-all shadow-lg disabled:opacity-50"
+          className="flex items-center gap-2 bg-linear-to-r from-[#9C4DFF] to-[#FF6B9C] text-white font-semibold py-4 px-8 rounded-xl disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed transition-all shadow-lg disabled:opacity-50"
         >
           Continue to Job Details
           <ArrowRight className="w-5 h-5" />

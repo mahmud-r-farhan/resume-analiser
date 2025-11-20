@@ -6,19 +6,21 @@ const useStore = create(
     (set) => ({
       cvFile: null,
       jobDesc: '',
-      model: 'deepseek/deepseek-chat-v3.1:free',
+      model: 'mistralai/mistral-small-3.1-24b-instruct:free',
       analysis: '',
+      fitScore: null,
+      optimizedCV: '',
       setCvFile: (file) => set({ cvFile: file }),
       setJobDesc: (desc) => set({ jobDesc: desc }),
       setModel: (model) => set({ model }),
       setAnalysis: (analysis) => set({ analysis }),
-      clearStore: () => set({ cvFile: null, jobDesc: '', analysis: '', model: 'deepseek/deepseek-chat-v3.1:free' }),
+      setFitScore: (fitScore) => set({ fitScore }),
+      setOptimizedCV: (optimizedCV) => set({ optimizedCV }),
+      clearStore: () => set({ cvFile: null, jobDesc: '', analysis: '', optimizedCV: '', model: 'mistralai/mistral-small-3.1-24b-instruct:free', fitScore: null }),
     }),
     {
       name: 'cv-optimizer-storage',
-      partialize: (state) => ({
-        jobDesc: state.jobDesc,
-      }),
+      partialize: (state) => ({ jobDesc: state.jobDesc }),
     }
   )
 );
