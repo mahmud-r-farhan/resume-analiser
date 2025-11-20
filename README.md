@@ -1,95 +1,116 @@
-# Resume Optimizer
+# Premium Resume Optimizer
 
 [Live Demo](https://resumeanalizer.vercel.app/) • [GitHub Repo](https://github.com/mahmud-r-farhan/resume-analiser)
 
-A **MERN stack** web application to optimize your CV/resume using AI. Upload your CV, input a job description, and get AI-powered suggestions, scoring, and insights to improve your chances of getting noticed.
+An AI-powered career copilot that help candidates personalise their resume for every job. Upload your PDF résumé, paste the target job description, and receive a premium analysis with a regenerated, ATS-friendly résumé that reflects the feedback.
 
 ---
 
-## Features
+## ✨ Highlights
 
-- **Upload PDF CV** – Supports text-based PDFs (scanned images not supported).  
-- **Job Description Input** – Analyze your CV against a specific job posting.  
-- **AI-Powered Analysis** – Get actionable suggestions, ATS scoring, and improvement tips using OpenRouter free LLM models.  
-- **Error Handling** – Handles API rate limits gracefully.  
-
----
-
-## Demo
-
-Try it online: [https://resumeanalizer.vercel.app/](https://resumeanalizer.vercel.app/)
+- **Premium Analysis Dashboard** – Executive summary, strengths, keyword gaps, and ATS guidance rendered in rich cards with Markdown highlighting.
+- **Dynamic Fit Score** – Visual gauge backed by AI scoring to show your alignment with the role.
+- **markdown-native Resume Builder** – Generate, copy, and download a professional Markdown resume that renders perfectly in the app and in exported PDFs.
+- **Template-aware Optimisation** – Switch between classic, modern, and functional layouts; regenerate with one click.
+- **One-click Exports** – Save analysis as Markdown/PDF and download the optimised résumé as a polished PDF instantly.
+- **Resilient UX** – Graceful loading states, rate-limit handling, and contextual callouts to guide the user journey.
 
 ---
 
-## Tech Stack
+## 🧱 Tech Stack
 
-- **Frontend:** React.js  
-- **Backend:** Node.js + Express.js  
-- **Database:** Optional / can be extended for history storage  
-- **AI:** OpenRouter free LLM models  
+- **Frontend:** React, Vite, Framer Motion, Tailwind utilities, Sonner toasts  
+- **Backend:** Node.js, Express.js  
+- **Data:** MongoDB
+- **AI Provider:** [OpenRouter](https://openrouter.ai/)
 
 ---
 
-## Setup
+## 🚀 Getting Started
 
-1. **Clone the repository**
+### 1. Clone and install
 
 ```bash
 git clone https://github.com/mahmud-r-farhan/resume-analiser.git
 cd resume-analiser
-````
+```
 
-2. **Setup Backend & Frontend**
-
-Follow the instructions in `backend/README.md` and `frontend/README.md` to install dependencies.
-
-3. **Get OpenRouter API Key**
-
-Sign up for a free API key: [OpenRouter](https://openrouter.ai/)
-
-4. **Run the App**
+Install dependencies inside both workspaces:
 
 ```bash
 # Backend
 cd backend
 npm install
-npm start
 
 # Frontend
-cd frontend
+cd ../frontend
 npm install
+```
+
+### 2. Configure environment variables
+
+#### Backend (`backend/.env`)
+
+```
+# Server Configuration
+NODE_ENV=development
+PORT=5000
+FRONTEND_URL=http://localhost:5173
+APP_URL=http://localhost:5173
+
+# OpenRouter AI
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+
+# MongoDB (Optional - remove if not using)
+MONGO_URI=mongodb://localhost:27017/cv-optimizer
+
+# Security
+RATE_LIMIT_WINDOW=15
+RATE_LIMIT_MAX_REQUESTS=100
+JWT_SECRET=
+
+# Mailing
+SMTP_USER=
+SMTP_PASS=
+```
+
+> `MONGO_URI` is optional. When provided the service stores analysis logs for later insights.
+
+#### Frontend (`frontend/.env`)
+
+```
+VITE_API_ENDPOINT=http://localhost:5005/api
+```
+
+### 3. Run the full stack
+
+```bash
+# In backend/
+npm run dev   # or npm start
+
+# In frontend/
 npm run dev
 ```
 
-5. Open [http://localhost:5173](http://localhost:5173) in your browser.
+Open the app at [http://localhost:5173](http://localhost:5173).
 
 ---
 
-## Limitations
+## 🧪 Usage Flow
 
-* Free LLM models may have **rate limits**; errors are possible.
-* **PDF must be text-based**; scanned PDFs are not supported.
-* No **authentication or user history** yet.
-
----
-
-## Future Improvements
-
-* Add **CV visualization** – highlight suggested improvements directly in the PDF.
-* Use **multiple LLMs in parallel** to enhance scoring and suggestions.
-* Add **user accounts and history storage**.
-* Support **scanned PDFs** using OCR integration.
+1. Upload a PDF résumé (max 5 MB, text-based).  
+2. Paste the job description (≥ 50 words recommended).  
+3. Choose an OpenRouter model (several free presets provided).  
+4. Review the premium analysis dashboard and fit score.  
+5. Regenerate the résumé using your preferred template and download or copy the Markdown.
 
 ---
 
-## References
+## ⚠️ Known Limitations
 
-* OpenRouter Docs: [https://openrouter.ai/docs](https://openrouter.ai/docs)
-
----
-
-## Contribution
-
-Contributions are welcome! Feel free to open issues or submit pull requests.
+- Free OpenRouter models may throttle heavy usage; the UI surfaces friendly errors and retry messaging.
+- Scanned or image-based PDFs are not yet supported (OCR pipeline is on the roadmap).
+- Now there are issues rendering the PDF! I've been working on fixing the issue for the last two days! I’ll fix it soon :(
 
 ---
+
