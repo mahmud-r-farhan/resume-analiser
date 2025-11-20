@@ -13,10 +13,11 @@ const validateAnalysisRequest = [
     .notEmpty()
     .withMessage('Model selection is required')
     .isIn([
-      'deepseek/deepseek-chat-v3.1:free',
-      'google/gemini-2.5-flash-preview-0925:free',
       'mistralai/mistral-small-3.1-24b-instruct:free',
-      'meta-llama/llama-4-maverick:free',
+      'deepseek/deepseek-r1:free',
+      'deepseek/deepseek-v3:free',
+      'google/gemma-2-27b-it:free',
+      'meta-llama/llama-3.1-70b-instruct:free',
     ])
     .withMessage('Invalid model selected'),
 
