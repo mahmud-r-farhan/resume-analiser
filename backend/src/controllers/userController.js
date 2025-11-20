@@ -1,4 +1,4 @@
-const User = require('../models/user');
+const User = require('../models/User');
 
 // Controller to get the user count
 exports.getUserCount = async (req, res) => {

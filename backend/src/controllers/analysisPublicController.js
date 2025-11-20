@@ -1,4 +1,4 @@
-const Analysis = require('../models/analysis');
+const Analysis = require('../models/Analysis');
 
 // Get ALL analyses (public)
 exports.getAllAnalyses = async (req, res) => {
