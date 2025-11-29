@@ -76,6 +76,7 @@ export const parseResumeMarkdown = (markdown) => {
     // Pattern 1: **Role** at **Company** | Date
     // Pattern 2: **Role** | Company | Date
     // Pattern 3: Role at Company | Date
+    // Enhanced to handle location: **Role** at **Company**, Location | Date
     const jobPattern = /(.+?)\s+(?:at|@|\|)\s+(.+?)(?:\s*\|\s*(.+))?$/;
     const datePattern = /\d{4}|present|current/i;
     
@@ -84,7 +85,7 @@ export const parseResumeMarkdown = (markdown) => {
       
       const match = trimmed.match(jobPattern);
       let role = cleanText(match[1]);
-      let company = cleanText(match[2]);
+      let companyLocation = cleanText(match[2]);
       let date = match[3] ? cleanText(match[3]) : '';
 
       // Check if date is on the next line
@@ -95,10 +96,16 @@ export const parseResumeMarkdown = (markdown) => {
         }
       }
 
+      // Split company and location if comma present
+      const companyParts = companyLocation.split(',').map(p => p.trim());
+      let company = companyParts[0];
+      let location = companyParts.slice(1).join(', ');
+
       currentJob = { 
         type: 'job', 
         role, 
         company, 
+        location: location || '',
         date: date || 'Present', 
         bullets: [] 
       };
@@ -108,6 +115,7 @@ export const parseResumeMarkdown = (markdown) => {
     }
 
     // Education entry: **Degree** | University | Date
+    // Enhanced to handle location: **Degree** | University, Location | Date
     if ((currentSection.title.toLowerCase().includes('education') || 
          currentSection.title.toLowerCase().includes('certification')) &&
         (trimmed.includes('University') || trimmed.includes('College') || 
@@ -116,10 +124,15 @@ export const parseResumeMarkdown = (markdown) => {
       
       const parts = trimmed.split('|').map(p => cleanText(p));
       if (parts.length >= 2) {
+        let institutionLocation = parts[1];
+        const institutionParts = institutionLocation.split(',').map(p => p.trim());
+        let institution = institutionParts[0];
+        let location = institutionParts.slice(1).join(', ');
         currentJob = {
           type: 'education',
           degree: parts[0],
-          institution: parts[1],
+          institution,
+          location: location || '',
           date: parts[2] || '',
           bullets: []
         };

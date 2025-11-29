@@ -41,7 +41,7 @@ export const ClassicTemplate = ({ data }) => {
               <Text style={baseStyles.location}>{item.location}</Text>
             )}
             {item.bullets && item.bullets.length > 0 && (
-              <View style={{ marginTop: 4 }}>
+              <View style={{ marginTop: 6 }}>
                 {item.bullets.map((bullet, i) => (
                   <View key={i} style={baseStyles.bulletRow}>
                     <View style={{ ...baseStyles.bulletPoint, backgroundColor: '#60a5fa' }} />
@@ -61,8 +61,11 @@ export const ClassicTemplate = ({ data }) => {
               <Text style={baseStyles.date}>{item.date}</Text>
             </View>
             <Text style={baseStyles.institution}>{item.institution}</Text>
+            {item.location && (
+              <Text style={baseStyles.location}>{item.location}</Text>
+            )}
             {item.bullets && item.bullets.length > 0 && (
-              <View style={{ marginTop: 4 }}>
+              <View style={{ marginTop: 6 }}>
                 {item.bullets.map((bullet, i) => (
                   <View key={i} style={baseStyles.bulletRow}>
                     <View style={baseStyles.bulletPoint} />
@@ -79,7 +82,7 @@ export const ClassicTemplate = ({ data }) => {
 
       case 'skill_category':
         return (
-          <View key={item.category} style={{ marginBottom: 6 }}>
+          <View key={item.category} style={{ marginBottom: 8 }}>
             <Text style={baseStyles.skillCategory}>{item.category}:</Text>
             <Text style={baseStyles.skillText}>
               {item.skills.join(' • ')}
