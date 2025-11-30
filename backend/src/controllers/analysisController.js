@@ -1,8 +1,11 @@
 const aiService = require('../services/aiService');
 const Analysis = require('../models/Analysis');
+const ResumeParse = require('../models/ResumeParse');
 const { extractTextFromPDF } = require('../utils/pdfParser');
 const User = require('../models/User');
 const { ensureResumeQuota } = require('../utils/security');
+const { parseResumeMarkdown } = require('../templates/parser');
+const { saveParsedResumeAndGeneratePDF } = require('../services/pdfGeneratorService');
 
 const analyzeCV = async (req, res, next) => {
   try {
@@ -20,6 +23,7 @@ const analyzeCV = async (req, res, next) => {
     console.log(`Analyzing with model: ${model}`);
     const result = await aiService.analyzeCV(cvText, jobDescription, model);
 
+    // Save analysis log
     if (process.env.MONGO_URI) {
       try {
         await Analysis.create({
@@ -31,7 +35,7 @@ const analyzeCV = async (req, res, next) => {
         });
       } catch (dbError) {
         console.error('Database save error:', dbError);
-        // Optionally throw or handle further
+        // Don't fail the request
       }
     }
 
@@ -40,7 +44,11 @@ const analyzeCV = async (req, res, next) => {
       analysis: result.analysis,
       fitScore: result.fitScore,
       model: result.model,
-      metadata: { fileName: req.file.originalname, fileSize: req.file.size, tokensUsed: result.tokensUsed }
+      metadata: { 
+        fileName: req.file.originalname, 
+        fileSize: req.file.size, 
+        tokensUsed: result.tokensUsed 
+      }
     });
   } catch (error) {
     console.error('Analysis error:', error);
@@ -62,6 +70,7 @@ const optimizeCV = async (req, res, next) => {
     const cvText = await extractTextFromPDF(req.file.buffer);
 
     console.log(`Optimizing with model: ${model}, template: ${template}`);
+    
     const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(401).json({ error: 'Authentication required' });
@@ -85,25 +94,133 @@ const optimizeCV = async (req, res, next) => {
       });
     }
 
+    // Get optimized markdown from LLM
+    console.log('Calling AI service to optimize CV...');
     const optimizedResult = await aiService.optimizeCV(cvText, jobDescription, analysis, model, template);
+    const optimizedMarkdown = optimizedResult.optimized;
 
-    // Increment quota for non-premium users after successful optimization
+    console.log('Optimized markdown received. Length:', optimizedMarkdown.length);
+    console.log('First 500 chars:', optimizedMarkdown.slice(0, 500));
+
+    // CRITICAL: Parse & validate markdown structure
+    const parseResult = parseResumeMarkdown(optimizedMarkdown);
+    
+    console.log('Parse result:', {
+      isValid: parseResult.isValid,
+      errors: parseResult.errors,
+      warnings: parseResult.warnings,
+      headerName: parseResult.header.name,
+      sectionsCount: parseResult.sections.length
+    });
+
+    if (!parseResult.isValid) {
+      console.error('Parsing failed:', parseResult.errors);
+      
+      // RETRY LOGIC: If parsing failed, try to fix it
+      console.log('Attempting to fix markdown...');
+      const fixedMarkdown = fixMarkdownFormat(optimizedMarkdown);
+      const parseRetry = parseResumeMarkdown(fixedMarkdown);
+      
+      if (!parseRetry.isValid) {
+        return res.status(400).json({
+          error: 'Failed to parse optimized resume',
+          details: parseRetry.errors,
+          message: 'The LLM response could not be properly structured. Please try again with a different model.',
+          debug: {
+            receivedLength: optimizedMarkdown.length,
+            firstLine: optimizedMarkdown.split('\n')[0]
+          }
+        });
+      }
+
+      // Use fixed version
+      const pdfResult = await saveParsedResumeAndGeneratePDF(
+        req.user.id,
+        fixedMarkdown,
+        parseRetry,
+        template,
+        null,
+        null,
+        model
+      );
+
+      // Increment quota
+      if (!isPremium) {
+        user.resumeQuota.count += 1;
+        await user.save();
+      }
+
+      return res.status(200).json({
+        success: true,
+        optimizedCV: fixedMarkdown,
+        resumeId: pdfResult.resumeId.toString(),
+        model: optimizedResult.model,
+        parseWarnings: parseRetry.warnings,
+        metadata: { 
+          fileName: req.file.originalname, 
+          fileSize: req.file.size, 
+          tokensUsed: optimizedResult.tokensUsed,
+          note: 'Markdown was auto-corrected'
+        }
+      });
+    }
+
+    // CRITICAL: Save parsed data + generate PDF from it
+    const pdfResult = await saveParsedResumeAndGeneratePDF(
+      req.user.id,
+      optimizedMarkdown,
+      parseResult,
+      template,
+      null,
+      null,
+      model
+    );
+
+    // Increment quota
     if (!isPremium) {
       user.resumeQuota.count += 1;
       await user.save();
     }
 
-    // Return payload using key expected by frontend (optimizedCV)
+    // Return to frontend: markdown + resumeId (for later downloads)
     res.status(200).json({
       success: true,
-      optimizedCV: optimizedResult.optimized,
+      optimizedCV: optimizedMarkdown,
+      resumeId: pdfResult.resumeId.toString(),
       model: optimizedResult.model,
-      metadata: { fileName: req.file.originalname, fileSize: req.file.size, tokensUsed: optimizedResult.tokensUsed }
+      parseWarnings: parseResult.warnings,
+      metadata: { 
+        fileName: req.file.originalname, 
+        fileSize: req.file.size, 
+        tokensUsed: optimizedResult.tokensUsed 
+      }
     });
   } catch (error) {
     console.error('Optimization error:', error);
     next(error);
   }
+};
+
+// Helper function to fix common markdown issues
+const fixMarkdownFormat = (markdown) => {
+  let fixed = markdown
+    .replace(/```markdown\n?/g, '') // Remove markdown code blocks
+    .replace(/```\n?/g, '')
+    .trim();
+
+  // Ensure starts with # if missing
+  if (!fixed.startsWith('#')) {
+    const lines = fixed.split('\n');
+    const firstContent = lines[0] || 'Resume';
+    fixed = `# ${firstContent}\n${lines.slice(1).join('\n')}`;
+  }
+
+  // Fix common heading issues
+  fixed = fixed
+    .replace(/^### /gm, '### ') // Normalize section headings
+    .replace(/^\*\*(.+?)\*\*$/gm, '### $1'); // Convert bold to headings if they're alone on a line
+
+  return fixed;
 };
 
 module.exports = { analyzeCV, optimizeCV };

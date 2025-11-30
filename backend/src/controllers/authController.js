@@ -11,6 +11,8 @@ const sanitizeUser = (user) => ({
   fullName: user.fullName,
   emailVerified: user.emailVerified,
   resumeQuota: user.resumeQuota,
+  isPremium: user.isPremium,
+  premiumExpiresAt: user.premiumExpiresAt,
   createdAt: user.createdAt,
 });
 

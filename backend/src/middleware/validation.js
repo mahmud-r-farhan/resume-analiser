@@ -1,4 +1,12 @@
 const { body, validationResult } = require('express-validator');
+const { AI_MODELS } = require('../models/LLMmodels');
+
+// Get all valid model IDs (both free and premium)
+const getAllValidModelIds = () => {
+  const freeModelIds = AI_MODELS.free.map(m => m.id);
+  const premiumModelIds = AI_MODELS.premium.map(m => m.id);
+  return [...freeModelIds, ...premiumModelIds];
+};
 
 const validateAnalysisRequest = [
   body('jobDescription')
@@ -12,13 +20,7 @@ const validateAnalysisRequest = [
     .trim()
     .notEmpty()
     .withMessage('Model selection is required')
-    .isIn([
-      'mistralai/mistral-small-3.1-24b-instruct:free',
-      'deepseek/deepseek-r1:free',
-      'deepseek/deepseek-v3:free',
-      'google/gemma-2-27b-it:free',
-      'meta-llama/llama-3.1-70b-instruct:free',
-    ])
+    .isIn(getAllValidModelIds())
     .withMessage('Invalid model selected'),
 
   body('template')

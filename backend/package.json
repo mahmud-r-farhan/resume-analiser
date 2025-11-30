@@ -25,6 +25,7 @@
     "pdf-parse": "^1.1.1",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",
-    "nodemailer": "^6.9.11"
+    "nodemailer": "^6.9.11",
+    "@react-pdf/renderer": "^3.3.12"
   }
 }
