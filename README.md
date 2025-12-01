@@ -110,7 +110,6 @@ Open the app at [http://localhost:5173](http://localhost:5173).
 
 - Free OpenRouter models may throttle heavy usage; the UI surfaces friendly errors and retry messaging.
 - Scanned or image-based PDFs are not yet supported (OCR pipeline is on the roadmap).
-- Now there are issues rendering the PDF! I've been working on fixing the issue for the last two days! I’ll fix it soon :(
 
 ---
 
