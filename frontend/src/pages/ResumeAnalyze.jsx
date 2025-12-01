@@ -4,7 +4,6 @@ import { Toaster, toast } from 'sonner';
 
 import useStore from '../store/store';
 import useAuthStore from '../store/authStore';
-import WelcomeModal from '../components/WelcomeModal';
 import StepIndicator from '../components/StepIndicator';
 import Header from '../components/Header';
 import ErrorAlert from '../components/error-boundary/ErrorAlert';
@@ -22,7 +21,6 @@ function ResumeAnalyze() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [dragActive, setDragActive] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(true);
   const [localCvFile, setLocalCvFile] = useState(null);
   const [uploadLimitReached, setUploadLimitReached] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -33,7 +31,7 @@ function ResumeAnalyze() {
   const [quotaResetAt, setQuotaResetAt] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authInitialMode, setAuthInitialMode] = useState('login');
-  const { token } = useAuthStore();
+  const { token, user } = useAuthStore();
   const {
     cvFile,
     jobDesc,
@@ -66,7 +64,6 @@ function ResumeAnalyze() {
     setShowAuthModal(true);
   };
 
-  const handleWelcomeClose = () => setShowWelcome(false);
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -220,7 +217,6 @@ function ResumeAnalyze() {
 
   return (
     <>
-      <WelcomeModal isOpen={showWelcome} onClose={handleWelcomeClose} />
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
@@ -250,7 +246,8 @@ function ResumeAnalyze() {
             <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
               <Header toggleSidebar={toggleSidebar} openAuthModal={openAuthModal}/>
               <StepIndicator currentStep={step} />
-              <ErrorAlert error={error} uploadLimitReached={uploadLimitReached} />
+              <ErrorAlert error={error} uploadLimitReached={uploadLimitReached}
+                    isPremium={user?.isPremium} />
               <AnimatePresence mode="wait">
                 {step === 1 && (
                   <Step1
@@ -275,6 +272,7 @@ function ResumeAnalyze() {
                     canAnalyze={canAnalyze}
                     loading={loading}
                     uploadLimitReached={uploadLimitReached}
+                    isPremium={user?.isPremium}
                   />
                 )}
                 {step === 3 && (
@@ -304,3 +302,4 @@ function ResumeAnalyze() {
 }
 
 export default ResumeAnalyze;
+

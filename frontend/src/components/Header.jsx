@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import useAuthStore from '../store/authStore';
+import { Link } from 'react-router-dom';
 
 function Header({ toggleSidebar, openAuthModal }) {
 
@@ -32,39 +33,20 @@ function Header({ toggleSidebar, openAuthModal }) {
         AI-powered premium resume enhancement for perfect job matches.
       </p>
         {user ? (
-          <div onClick={toggleSidebar} className="flex gap-2 justify-center text-sm text-gray-400 mt-4 relative cursor-pointer">
-              <p>Welcome back,</p>
-              <div className="relative group cursor-default">
-                <p>{user.fullName}</p>
-                <div
-                  className="
-                    absolute left-1/2 -translate-x-1/2 top-full mt-2
-                    px-3 py-1.5 text-sm text-gray-700
-                    bg-white rounded-md shadow-md border
-                    opacity-0 scale-95 pointer-events-none
-                    group-hover:opacity-100 group-hover:scale-100
-                    transition-all duration-200 ease-out
-                    whitespace-nowrap z-20 text-start
-                  "
-                > 
-                 <p>{user.email}</p>
-
-                {/* Detailed User Info Tooltip 
-                    <p>Username: {user.username}</p>
-                    <p>Name: {user.fullName}</p>
-                    <p>Email: {user.email}</p>
-                    <p>Account Type: {user.isPremium ? 'Premium' : 'Free'}</p>
-                    <p>Resume Quota: {user.resumeQuota.count}/3</p>
-                    <p>Joined: {new Date(user.createdAt).toLocaleDateString()}</p>
-                    */}
-                </div>
-              </div>
-            </div> 
-            ) : (
-            <div  onClick={handleLoginClick} className='text-center text-sm text-gray-400 mt-4 cursor-pointer'> 
-              <p>Greetings, Guest</p> 
-            </div>
-            )}
+          <div className="flex gap-4 justify-center text-sm text-gray-400 mt-4 relative">
+            <p>Welcome back,</p>
+            <Link
+              to="/profile"
+              className="text-[#A7BFFF] hover:text-white underline cursor-pointer transition-colors"
+            >
+              {user.fullName}
+            </Link>
+          </div> 
+        ) : (
+        <div  onClick={handleLoginClick} className='text-center text-sm text-gray-400 mt-4 cursor-pointer'> 
+          <p>Greetings, Guest</p> 
+        </div>
+        )}
     </motion.header>
   );
 }

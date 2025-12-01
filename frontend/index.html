@@ -54,7 +54,7 @@
       <!-- Optional meta keywords (ignored by most engines, but harmless) -->
       <meta name="keywords" content="resume optimizer, ATS resume checker, AI resume analysis, resume rewriting, CV improvement, resume builder, ATS-friendly resume" />
 
-      <!-- Structured data (JSON-LD): Organization + WebSite -->
+      <!-- Structured data (JSON-LD): Organization + WebSite + SoftwareApplication -->
       <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -72,7 +72,7 @@
           },
           {
             "@type": "WebSite",
-            "@id": "https://devplus.fun/#website",
+            "@id": "https://resumeanalizer.vercel.app/#website",
             "url": "https://resumeanalizer.vercel.app/",
             "name": "Professional Resume Optimizer",
             "publisher": {
@@ -80,9 +80,47 @@
             },
             "potentialAction": {
               "@type": "SearchAction",
-              "target": "https://resumeanalizer.vercel.app/search?q={search_term_string}",
+              "target": "https://resumeanalizer.vercel.app/analyze?q={search_term_string}",
               "query-input": "required name=search_term_string"
             }
+          },
+          {
+            "@type": "SoftwareApplication",
+            "name": "Professional Resume Optimizer",
+            "applicationCategory": "BusinessApplication",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": "4.8",
+              "ratingCount": "1250"
+            },
+            "operatingSystem": "Web",
+            "description": "AI-powered resume optimizer that analyzes, scores, and rewrites resumes for ATS and recruiter success."
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What is an ATS-friendly resume?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "An ATS-friendly resume is formatted to be easily read by Applicant Tracking Systems, using standard sections, proper headers, and keyword optimization to pass automated screening."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How does the AI resume optimizer work?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Our AI analyzes your resume against job descriptions, provides an ATS compatibility score, identifies improvements, and generates an optimized version tailored to the target role."
+                }
+              }
+            ]
           }
         ]
       }

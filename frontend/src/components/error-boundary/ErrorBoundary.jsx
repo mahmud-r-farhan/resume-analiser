@@ -18,10 +18,10 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-black/20 text-white">
+        <div className="min-h-screen flex items-center justify-centerbg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
           <div className="max-w-md w-full p-8 rounded-2xl border border-red-500/50 bg-red-900/20 backdrop-blur-md">
-            <h2 className="text-2xl font-bold text-red-400 mb-4">Something went wrong</h2>
-            <p className="text-red-200 mb-6">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">Something went wrong</h2>
+            <p className="text-black mb-6">
               An unexpected error occurred. Please try refreshing the page or contact support if the issue persists.
             </p>
             <button

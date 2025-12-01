@@ -164,10 +164,10 @@ function Sidebar({ onClose, openAuthModal }) {
                     {loadingQuota
                       ? '...'
                       : quota
-                      ? `${quota.count}/${quota.max === Infinity ? '∞' : quota.max}`
+                      ? `${quota.remaining} left / ${quota.max === Infinity ? '∞' : quota.max}`
                       : user.resumeQuota
-                      ? `${user.resumeQuota.count}/3`
-                      : '0/3'}
+                      ? `${Math.max(0, 3 - user.resumeQuota.count)} left / 3`
+                      : '3 left / 3'}
                   </span>
                 </div>
 

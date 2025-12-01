@@ -1,7 +1,8 @@
+import ModelSelector from '../ModelSelector';
 import { motion } from 'framer-motion';
 import { FileText, ArrowLeft, Zap, CheckCircle2 } from 'lucide-react';
 
-function Step2({ jobDesc, setJobDesc, model, setModel, setStep, handleSubmit, canAnalyze, loading, uploadLimitReached }) {
+function Step2({ jobDesc, setJobDesc, model, setModel, setStep, handleSubmit, canAnalyze, loading, uploadLimitReached, isPremium }) {
   return (
     <motion.section
       key="step2"
@@ -33,18 +34,11 @@ function Step2({ jobDesc, setJobDesc, model, setModel, setStep, handleSubmit, ca
           </div>
         </div>
         <div>
-          <label className="block text-sm font-semibold text-[#E0E0E0] mb-3">AI Model Selection</label>
-          <select
-            value={model}
-            onChange={(e) => setModel(e.target.value)}
-            className="w-full px-4 py-3 bg-[#1A0F3D]/85 border border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-white"
-          >
-            <option value="mistralai/mistral-small-3.1-24b-instruct:free">Mistral Small 3.1 24B (Free) - Efficient</option>
-            <option value="deepseek/deepseek-r1:free">DeepSeek R1 (Free) - Best reasoning (o1-level)</option>
-            <option value="deepseek/deepseek-v3:free">DeepSeek V3 (Free) - General/technical</option>
-            <option value="google/gemma-2-27b-it:free">Google Gemma 2 27B (Free) - Advanced</option>
-            <option value="meta-llama/llama-3.1-70b-instruct:free">Meta Llama 3.1 70B (Free) - Comprehensive</option>
-          </select>
+          <ModelSelector 
+            value={model} 
+            onChange={setModel} 
+            isPremium={isPremium} 
+          />
         </div>
       </div>
       <div className="flex flex-col sm:flex-row gap-4 mt-8">

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  FileText, CheckCircle, TrendingUp, Users, Play, X, 
-  Sparkles, ArrowRight 
+import {
+  FileText, CheckCircle, TrendingUp, Users, Play, X,
+  Sparkles, ArrowRight
 } from 'lucide-react';
 import { Link as RouterLink } from 'react-router-dom';
 
@@ -60,26 +60,25 @@ export default function Home() {
             >
               <X className="w-6 h-6" />
             </button>
-            <video ref={videoRef} className="w-full h-full"  autoPlay playsInline>
+            <video ref={videoRef} className="w-full h-full" autoPlay playsInline>
               <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
             </video>
           </motion.div>
         </motion.div>
       )}
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-[#0f1b43] via-[#231551] to-[#581d49] text-white overflow-hidden">
 
         {/* Navigation */}
         <motion.nav
           initial={{ y: -100 }}
           animate={{ y: 0 }}
-          className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-            isScrolled ? 'bg-slate-950/90 backdrop-blur-2xl shadow-2xl border-b border-slate-800/50' : 'bg-transparent'
-          }`}
+          className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? 'bg-[#0f1b43]/90 backdrop-blur-2xl shadow-2xl border-b border-purple-500/20' : 'bg-transparent'
+            }`}
         >
           <div className="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
             <div className="flex items-center gap-3">
-                 <img src="/logo.png" alt="Logo" loading="lazy" />
+              <img src="/logo.png" alt="Logo" loading="lazy" />
             </div>
 
             <div className="hidden lg:flex items-center gap-10">
