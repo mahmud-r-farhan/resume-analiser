@@ -1,11 +1,11 @@
 const AI_MODELS = {
     free: [
         {
-            id: 'x-ai/grok-4.1-fast:free',
-            name: 'Grok 4.1 Fast',
-            description: 'XAI’s optimized fast model',
-            provider: 'xAI',
-            contextLength: '128K tokens',
+            id: 'tngtech/deepseek-r1t2-chimera:free',
+            name: 'DeepSeek R1T2 Chimera',
+            description: 'DeepSeek-TNG-R1T2-Chimera is the second-generation Chimera model from TNG Tech.',
+            provider: 'TNG',
+            contextLength: '164K tokens',
             recommended: true,
         },
         {
