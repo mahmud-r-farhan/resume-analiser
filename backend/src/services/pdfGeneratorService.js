@@ -1,14 +1,11 @@
-const { renderToBuffer } = require('@react-pdf/renderer');
-const { ClassicTemplate } = require('../templates/ClassicTemplate');
-const { ModernTemplate } = require('../templates/ModernTemplate');
-const { FunctionalTemplate } = require('../templates/FunctionalTemplate');
-const ResumeParse = require('../models/ResumeParse');
+/**
+ * PDF Generator Service
+ * Generates PDF resumes using PDFKit
+ */
 
-const templateMap = {
-  classic: ClassicTemplate,
-  modern: ModernTemplate,
-  functional: FunctionalTemplate,
-};
+const { generatePDF } = require('../templates/PDFKitGenerator');
+const { parseResumeMarkdown } = require('../templates/parser');
+const ResumeParse = require('../models/ResumeParse');
 
 /**
  * Generate PDF from parsed resume structure
@@ -21,16 +18,16 @@ const generatePDFFromParsed = async (parsedData, template = 'classic') => {
     throw new Error('Invalid parsed resume data');
   }
 
-  if (!templateMap[template]) {
+  const validTemplates = ['classic', 'modern', 'functional'];
+  if (!validTemplates.includes(template)) {
     throw new Error(`Template '${template}' not found. Use: classic, modern, functional`);
   }
 
   // Reconstruct markdown from parsed data for template rendering
   const markdown = reconstructMarkdown(parsedData);
-  const TemplateComponent = templateMap[template];
 
   try {
-    const pdfBuffer = await renderToBuffer(TemplateComponent({ data: markdown }));
+    const pdfBuffer = await generatePDF(markdown, template);
     return pdfBuffer;
   } catch (err) {
     console.error('PDF generation error:', err);
@@ -114,7 +111,7 @@ const saveParsedResumeAndGeneratePDF = async (
   model = 'unknown'
 ) => {
   try {
-    // Generate PDF buffer
+    // Generate PDF buffer using PDFKit
     const pdfBuffer = await generatePDFFromParsed(parsedData, template);
 
     // Save to database

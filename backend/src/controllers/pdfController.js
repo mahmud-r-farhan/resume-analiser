@@ -1,15 +1,13 @@
-const { renderToBuffer } = require('@react-pdf/renderer');
-const { ClassicTemplate } = require('../templates/ClassicTemplate');
-const { ModernTemplate } = require('../templates/ModernTemplate');
-const { FunctionalTemplate } = require('../templates/FunctionalTemplate');
+/**
+ * PDF Controller
+ * Handles resume PDF generation using PDFKit
+ */
+
+const { generatePDF } = require('../templates/PDFKitGenerator');
 const ResumeParse = require('../models/ResumeParse');
 const { saveParsedResumeAndGeneratePDF } = require('../services/pdfGeneratorService');
 
-const templateMap = {
-  classic: ClassicTemplate,
-  modern: ModernTemplate,
-  functional: FunctionalTemplate,
-};
+const templateList = ['classic', 'modern', 'functional'];
 
 const generateResumePDF = async (req, res, next) => {
   try {
@@ -23,7 +21,7 @@ const generateResumePDF = async (req, res, next) => {
       return res.status(413).json({ error: 'Resume content too large (max 50000 chars)' });
     }
 
-    if (!templateMap[template]) {
+    if (!templateList.includes(template)) {
       return res.status(400).json({ error: `Invalid template: ${template}. Use classic, modern, or functional.` });
     }
 
@@ -63,9 +61,8 @@ const generateResumePDF = async (req, res, next) => {
       return res.send(existingResume.pdfBuffer);
     }
 
-    // Generate new PDF (fallback for backward compatibility)
-    const TemplateComponent = templateMap[template];
-    const pdfBuffer = await renderToBuffer(TemplateComponent({ data: markdown }));
+    // Generate new PDF using PDFKit
+    const pdfBuffer = await generatePDF(markdown, template);
 
     const cleanFileName = `${fileName}_${template}_${Date.now()}`.replace(/\s+/g, '_').slice(0, 100);
     res.setHeader('Content-Type', 'application/pdf');
