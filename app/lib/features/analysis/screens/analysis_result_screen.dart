@@ -64,19 +64,19 @@ class AnalysisResultScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     gradient: LinearGradient(
                       colors: [
-                        scoreColor.withOpacity(0.1),
-                        scoreColor.withOpacity(0.05),
+                        scoreColor.withValues(alpha: 0.1),
+                        scoreColor.withValues(alpha: 0.05),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     border: Border.all(
-                      color: scoreColor.withOpacity(0.2),
+                      color: scoreColor.withValues(alpha: 0.2),
                       width: 2,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: scoreColor.withOpacity(0.1),
+                        color: scoreColor.withValues(alpha: 0.1),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -151,10 +151,10 @@ class AnalysisResultScreen extends StatelessWidget {
                           vertical: 12,
                         ),
                         decoration: BoxDecoration(
-                          color: scoreColor.withOpacity(0.15),
+                          color: scoreColor.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: scoreColor.withOpacity(0.3),
+                            color: scoreColor.withValues(alpha: 0.3),
                             width: 1,
                           ),
                         ),
@@ -198,7 +198,7 @@ class AnalysisResultScreen extends StatelessWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
+                        color: Colors.black.withValues(alpha: 0.03),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -256,7 +256,7 @@ class AnalysisResultScreen extends StatelessWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
+                        color: Colors.black.withValues(alpha: 0.03),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),

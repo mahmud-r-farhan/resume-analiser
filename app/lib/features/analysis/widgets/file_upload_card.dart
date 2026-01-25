@@ -35,18 +35,18 @@ class FileUploadCard extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: scheme.surface.withOpacity(isDark ? 0.35 : 0.55),
+                color: scheme.surface.withValues(alpha: isDark ? 0.35 : 0.55),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: isSelected
-                      ? scheme.primary.withOpacity(0.6)
-                      : Colors.white.withOpacity(0.15),
+                      ? scheme.primary.withValues(alpha: 0.6)
+                      : Colors.white.withValues(alpha: 0.15),
                   width: isSelected ? 2 : 1,
                 ),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: scheme.primary.withOpacity(0.25),
+                          color: scheme.primary.withValues(alpha: 0.25),
                           blurRadius: 24,
                           spreadRadius: 1,
                         )
@@ -107,7 +107,7 @@ class FileUploadCard extends StatelessWidget {
                     Positioned.fill(
                       child: Container(
                         decoration: BoxDecoration(
-                          color: scheme.surface.withOpacity(0.65),
+                          color: scheme.surface.withValues(alpha: 0.65),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Center(
@@ -153,12 +153,12 @@ class _UploadIcon extends StatelessWidget {
               )
             : null,
         color: !isSelected
-            ? scheme.primary.withOpacity(0.15)
+            ? scheme.primary.withValues(alpha: 0.15)
             : null,
         boxShadow: isSelected
             ? [
                 BoxShadow(
-                  color: scheme.primary.withOpacity(0.4),
+                  color: scheme.primary.withValues(alpha: 0.4),
                   blurRadius: 18,
                 )
               ]
