@@ -19,6 +19,7 @@ class AnalysisNotifier extends Notifier<AsyncValue<Map<String, dynamic>?>> {
   Future<void> analyze({
     required PlatformFile file,
     required String jobDescription,
+    required String model,
   }) async {
     final service = ref.read(analysisServiceProvider);
     state = const AsyncValue.loading();
@@ -26,6 +27,7 @@ class AnalysisNotifier extends Notifier<AsyncValue<Map<String, dynamic>?>> {
       final result = await service.analyzeResume(
         file: file,
         jobDescription: jobDescription,
+        model: model,
       );
       state = AsyncValue.data(result);
     } catch (e, stack) {

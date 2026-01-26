@@ -1,20 +1,15 @@
-import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import '../../../core/config/api_config.dart';
 
 class AnalysisService {
   final Dio _dio = Dio();
 
-  String get _baseUrl {
-    if (kIsWeb) return 'http://localhost:5000/api'; // should change with backend api (localhost or server url)
-    if (Platform.isAndroid) return 'http://10.0.2.2:5000/api'; // should change with backend api (localhost or server url)
-    return 'http://localhost:5000/api';
-  }
-
   Future<Map<String, dynamic>> analyzeResume({
     required PlatformFile file,
     required String jobDescription,
+    required String model,
   }) async {
     try {
       String fileName = file.name;
@@ -35,11 +30,11 @@ class AnalysisService {
       FormData formData = FormData.fromMap({
         'cv': multipartFile,
         'jobDescription': jobDescription,
-        'model': 'deepseek/deepseek-chat-v3.1:free', //  Default model
+        'model': model,
       });
 
       final response = await _dio.post(
-        '$_baseUrl/analyze',
+        '${ApiConfig.baseUrl}/analyze',
         data: formData,
         options: Options(
           headers: {

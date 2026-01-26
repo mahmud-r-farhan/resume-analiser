@@ -45,4 +45,4 @@ The app is pre-configured to connect to the backend:
 *   **Android Emulator**: Connects to `http://10.0.2.2:5000/api`
 *   **Web/iOS/Desktop**: Connects to `http://localhost:5000/api`
 
-*Note: To change the base URL, modify `lib/features/analysis/services/analysis_service.dart`.*
+*Note: To change the base URL, modify `lib/core/config/api_config.dart`.*

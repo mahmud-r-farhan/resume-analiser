@@ -6,8 +6,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/providers/theme_provider.dart';
 import '../providers/analysis_provider.dart';
+import '../providers/model_provider.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/file_upload_card.dart';
+import '../widgets/model_selector.dart';
 import '../widgets/step_indicator.dart';
 import 'analysis_loading_screen.dart';
 import 'analysis_result_screen.dart';
@@ -61,9 +63,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _currentStep = 2;
     });
 
+    final selectedModel = ref.read(selectedModelProvider);
     ref.read(analysisProvider.notifier).analyze(
           file: _selectedFile!,
           jobDescription: _jobDescController.text,
+          model: selectedModel,
         );
   }
 
@@ -334,6 +338,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 }
 
   Widget _buildStep2Content(BuildContext context) {
+    final modelState = ref.watch(modelStateProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -411,6 +417,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 height: 1.6,
               ),
             ),
+          ),
+        ),
+        const SizedBox(height: 24),
+        // Model Selector
+        FadeInUp(
+          child: ModelSelector(
+            selectedModelId: modelState.selectedId,
+            models: modelState.models,
+            isLoading: modelState.isLoading,
+            onModelSelected: (modelId) {
+              ref.read(selectedModelProvider.notifier).setModel(modelId);
+            },
           ),
         ),
         const SizedBox(height: 24),
