@@ -112,19 +112,19 @@ class _AnalysisResultScreenState extends ConsumerState<AnalysisResultScreen> {
                     borderRadius: BorderRadius.circular(20),
                     gradient: LinearGradient(
                       colors: [
-                        scoreColor.withValues(alpha: 0.1),
-                        scoreColor.withValues(alpha: 0.05),
+                        scoreColor.withOpacity(0.1),
+                        scoreColor.withOpacity(0.05),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     border: Border.all(
-                      color: scoreColor.withValues(alpha: 0.2),
+                      color: scoreColor.withOpacity(0.2),
                       width: 2,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: scoreColor.withValues(alpha: 0.1),
+                        color: scoreColor.withOpacity(0.1),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -199,10 +199,10 @@ class _AnalysisResultScreenState extends ConsumerState<AnalysisResultScreen> {
                           vertical: 12,
                         ),
                         decoration: BoxDecoration(
-                          color: scoreColor.withValues(alpha: 0.15),
+                          color: scoreColor.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: scoreColor.withValues(alpha: 0.3),
+                            color: scoreColor.withOpacity(0.3),
                             width: 1,
                           ),
                         ),
@@ -246,7 +246,7 @@ class _AnalysisResultScreenState extends ConsumerState<AnalysisResultScreen> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.03),
+                        color: Colors.black.withOpacity(0.03),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -304,7 +304,7 @@ class _AnalysisResultScreenState extends ConsumerState<AnalysisResultScreen> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.03),
+                        color: Colors.black.withOpacity(0.03),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),

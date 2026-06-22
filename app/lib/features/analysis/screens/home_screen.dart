@@ -324,7 +324,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          color: scoreColor.withValues(alpha: 0.1),
+                          color: scoreColor.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
                         child: Center(
@@ -506,7 +506,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black.withOpacity(0.05),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -608,9 +608,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
               border: Border.all(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
                 width: 1,
               ),
             ),

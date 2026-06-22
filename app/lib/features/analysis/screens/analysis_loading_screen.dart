@@ -80,7 +80,7 @@ class _AnalysisLoadingScreenState extends State<AnalysisLoadingScreen> with Tick
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
                                   width: 2,
                                 ),
                               ),
@@ -106,7 +106,7 @@ class _AnalysisLoadingScreenState extends State<AnalysisLoadingScreen> with Tick
                                         color: Theme.of(context).colorScheme.primary,
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+                                            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
                                             blurRadius: 8,
                                           )
                                         ],
@@ -123,7 +123,7 @@ class _AnalysisLoadingScreenState extends State<AnalysisLoadingScreen> with Tick
                             height: 100,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                             ),
                             child: Icon(
                               Icons.analytics_outlined,

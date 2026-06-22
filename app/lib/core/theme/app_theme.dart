@@ -132,7 +132,7 @@ class AppTheme {
           backgroundColor: primaryColor,
           foregroundColor: Colors.white,
           elevation: 4,
-          shadowColor: primaryColor.withValues(alpha: 0.4),
+          shadowColor: primaryColor.withOpacity(0.4),
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
@@ -190,7 +190,7 @@ class AppTheme {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: errorColor.withValues(alpha: 0.5), width: 1.5),
+          borderSide: BorderSide(color: errorColor.withOpacity(0.5), width: 1.5),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
@@ -210,7 +210,7 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: surfaceColor,
         elevation: 2,
-        shadowColor: Colors.black.withValues(alpha: 0.08),
+        shadowColor: Colors.black.withOpacity(0.08),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: BorderSide(color: dividerColor, width: 1),
@@ -219,7 +219,7 @@ class AppTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: cardColor,
-        selectedColor: primaryColor.withValues(alpha: 0.1),
+        selectedColor: primaryColor.withOpacity(0.1),
         disabledColor: Colors.grey.shade300,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         labelStyle: GoogleFonts.inter(
@@ -248,7 +248,7 @@ class AppTheme {
         activeTrackColor: primaryColor,
         inactiveTrackColor: dividerColor,
         thumbColor: primaryColor,
-        overlayColor: primaryColor.withValues(alpha: 0.2),
+        overlayColor: primaryColor.withOpacity(0.2),
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: Colors.black87,
@@ -385,7 +385,7 @@ class AppTheme {
           backgroundColor: const Color(0xFF818CF8),
           foregroundColor: Colors.white,
           elevation: 6,
-          shadowColor: const Color(0xFF818CF8).withValues(alpha: 0.5),
+          shadowColor: const Color(0xFF818CF8).withOpacity(0.5),
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
@@ -463,7 +463,7 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: darkSurface,
         elevation: 2,
-        shadowColor: Colors.black.withValues(alpha: 0.3),
+        shadowColor: Colors.black.withOpacity(0.3),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: BorderSide(color: Colors.grey.shade800, width: 1),
@@ -472,7 +472,7 @@ class AppTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: darkCard,
-        selectedColor: const Color(0xFF818CF8).withValues(alpha: 0.2),
+        selectedColor: const Color(0xFF818CF8).withOpacity(0.2),
         disabledColor: Colors.grey.shade700,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         labelStyle: GoogleFonts.inter(
@@ -501,7 +501,7 @@ class AppTheme {
         activeTrackColor: const Color(0xFF818CF8),
         inactiveTrackColor: Colors.grey.shade800,
         thumbColor: const Color(0xFF818CF8),
-        overlayColor: const Color(0xFF818CF8).withValues(alpha: 0.2),
+        overlayColor: const Color(0xFF818CF8).withOpacity(0.2),
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: Colors.grey.shade900,

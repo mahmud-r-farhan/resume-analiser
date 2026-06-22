@@ -24,10 +24,10 @@ class StepIndicator extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
           decoration: BoxDecoration(
-            color: scheme.surface.withValues(alpha: isDark ? 0.35 : 0.55),
+            color: scheme.surface.withOpacity(isDark ? 0.35 : 0.55),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.15),
+              color: Colors.white.withOpacity(0.15),
             ),
           ),
           child: Column(
@@ -74,10 +74,10 @@ class StepDescription extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           decoration: BoxDecoration(
-            color: scheme.surface.withValues(alpha: isDark ? 0.35 : 0.55),
+            color: scheme.surface.withOpacity(isDark ? 0.35 : 0.55),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.15),
+              color: Colors.white.withOpacity(0.15),
             ),
           ),
           child: Center(
@@ -87,7 +87,7 @@ class StepDescription extends StatelessWidget {
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: scheme.onSurface.withValues(alpha: 0.8),
+                color: scheme.onSurface.withOpacity(0.8),
                 height: 1.5,
               ),
             ),
@@ -139,12 +139,12 @@ class _GlassStepNode extends StatelessWidget {
                       shape: BoxShape.circle,
                       gradient: (isActive || isCompleted) ? gradient : null,
                       color: (!isActive && !isCompleted)
-                          ? scheme.surfaceContainerHighest.withValues(alpha: 0.6)
+                          ? scheme.surfaceContainerHighest.withOpacity(0.6)
                           : null,
                       boxShadow: isActive
                           ? [
                               BoxShadow(
-                                color: scheme.primary.withValues(alpha: 0.35),
+                                color: scheme.primary.withOpacity(0.35),
                                 blurRadius: 20,
                                 spreadRadius: 2,
                               )
@@ -152,14 +152,14 @@ class _GlassStepNode extends StatelessWidget {
                           : isCompleted
                               ? [
                                   BoxShadow(
-                                    color: scheme.primary.withValues(alpha: 0.2),
+                                    color: scheme.primary.withOpacity(0.2),
                                     blurRadius: 12,
                                     spreadRadius: 0,
                                   )
                                 ]
                               : [],
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.25),
+                        color: Colors.white.withOpacity(0.25),
                       ),
                     ),
                     child: Icon(
@@ -183,8 +183,8 @@ class _GlassStepNode extends StatelessWidget {
                           ? gradient
                           : LinearGradient(
                               colors: [
-                                Colors.grey.withValues(alpha: 0.2),
-                                Colors.grey.withValues(alpha: 0.2),
+                                Colors.grey.withOpacity(0.2),
+                                Colors.grey.withOpacity(0.2),
                               ],
                             ),
                       borderRadius: BorderRadius.circular(2),
@@ -207,7 +207,7 @@ class _GlassStepNode extends StatelessWidget {
               fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
               color: isActive
                   ? scheme.primary
-                  : scheme.onSurface.withValues(alpha: 0.6),
+                  : scheme.onSurface.withOpacity(0.6),
               letterSpacing: isActive ? 0.3 : 0,
             ),
           ),
