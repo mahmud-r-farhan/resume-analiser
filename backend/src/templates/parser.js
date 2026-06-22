@@ -30,13 +30,21 @@ const parseResumeMarkdown = (markdown) => {
   const extractContactInfo = (text) => {
     const emailRegex = /[\w.-]+@[\w.-]+\.\w+/g;
     const phoneRegex = /[\d\s()+-]{10,}/g;
-    const urlRegex = /https?:\/\/[^\s]+/g;
+    const urlRegex = /(?:https?:\/\/)?(?:www\.)?[\w.-]+\.[a-z]{2,}(?:\/[^\s|]*)?/gi;
 
     const emails = text.match(emailRegex) || [];
     const phones = text.match(phoneRegex) || [];
     const urls = text.match(urlRegex) || [];
 
-    return [...new Set([...emails, ...phones, ...urls.map((u) => u.replace(/[()]/g, ''))])];
+    // Filter out common false positives
+    const validUrls = urls.filter(u =>
+      u.includes('linkedin.com') ||
+      u.includes('github.com') ||
+      u.includes('portfolio') ||
+      u.includes('http')
+    );
+
+    return [...new Set([...emails, ...phones, ...validUrls.map((u) => u.replace(/[()|]/g, '').trim())])];
   };
 
   // Extract name from first non-empty line if no # found
@@ -130,8 +138,8 @@ const parseResumeMarkdown = (markdown) => {
     }
 
     // Bullet points
-    if (trimmed.startsWith('- ') || trimmed.startsWith('• ') || trimmed.startsWith('* ')) {
-      const bulletText = cleanText(trimmed.replace(/^[-•*]\s*/, ''));
+    if (trimmed.startsWith('- ') || trimmed.startsWith('• ') || trimmed.startsWith('* ') || trimmed.startsWith('+ ') || trimmed.startsWith('> ')) {
+      const bulletText = cleanText(trimmed.replace(/^[-•*+>]\s*/, ''));
       if (bulletText) {
         if (currentJob && inJobBlock) {
           currentJob.bullets.push(bulletText);

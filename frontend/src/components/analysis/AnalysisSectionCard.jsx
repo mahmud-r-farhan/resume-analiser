@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import MarkdownRenderer from '../markdown/MarkdownRenderer';
+import { Zap, AlertCircle, Search, FileText, Sparkles } from 'lucide-react';
 
 const accentStyles = {
   default: 'from-[#2A1E55]/70 to-[#1C1A3A]/70 border-white/10',
@@ -24,19 +25,33 @@ const AnalysisSectionCard = ({ title, content, accent = 'default', index = 0 }) 
 
   const accentClass = accentStyles[accent] || accentStyles.default;
 
+  const getIcon = () => {
+    switch(accent) {
+      case 'strengths': return <Zap className="w-5 h-5 text-[#4DCFFF]" />;
+      case 'gaps': return <AlertCircle className="w-5 h-5 text-[#FF6B9C]" />;
+      case 'keywords': return <Search className="w-5 h-5 text-[#4DCFFF]" />;
+      case 'ats': return <FileText className="w-5 h-5 text-[#A28DFF]" />;
+      case 'summary': return <Sparkles className="w-5 h-5 text-[#9C4DFF]" />;
+      default: return <Sparkles className="w-5 h-5 text-white/50" />;
+    }
+  };
+
   return (
     <motion.article
       variants={sectionVariants}
       initial="hidden"
       animate="visible"
+      whileHover={{ y: -5, transition: { duration: 0.2 } }}
       custom={index}
-      className={`relative overflow-hidden rounded-3xl border bg-gradient-to-br ${accentClass} p-6 sm:p-7 shadow-lg shadow-black/20`}
+      className={`relative overflow-hidden rounded-3xl border bg-gradient-to-br ${accentClass} p-6 sm:p-7 shadow-lg shadow-black/20 group`}
     >
       <div className="flex items-center gap-3 mb-4">
-        <div className="h-10 w-1.5 rounded-full bg-gradient-to-b from-[#4DCFFF] to-[#9C4DFF]" />
+        <div className="p-2 rounded-xl bg-white/5 group-hover:bg-white/10 transition-colors">
+          {getIcon()}
+        </div>
         <h3 className="text-xl font-bold text-white tracking-tight">{title}</h3>
       </div>
-      <MarkdownRenderer content={content} className="text-sm sm:text-base" />
+      <MarkdownRenderer content={content} className="text-sm sm:text-base opacity-90 group-hover:opacity-100 transition-opacity" />
     </motion.article>
   );
 };

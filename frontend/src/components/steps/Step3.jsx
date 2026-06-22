@@ -7,6 +7,8 @@ import {
   RefreshCw,
   Trash2,
   FileText,
+  AlertCircle,
+  ChevronRight
 } from 'lucide-react';
 
 import DownloadButtons from '../DownloadButtons';
@@ -15,7 +17,6 @@ import AnalysisFullReport from '../analysis/AnalysisFullReport';
 import FitScoreGauge from '../analysis/FitScoreGauge';
 import ResumePreview from '../analysis/ResumePreview';
 import { extractFitScore, parseAnalysisSections } from '../../utils/analysisParser';
-import { exportResumeMarkdownToPdf } from '../../utils/pdf';
 
 const Step3 = ({
   loading,
@@ -37,7 +38,14 @@ const Step3 = ({
     () =>
       sections.filter(
         (section) => !section.title.toLowerCase().includes('fit score'),
-      ),
+      ).map(section => {
+        // Add icons based on title keywords
+        let Icon = Sparkles;
+        if (section.title.toLowerCase().includes('strength')) Icon = Zap;
+        if (section.title.toLowerCase().includes('gap') || section.title.toLowerCase().includes('weakness')) Icon = AlertCircle;
+        if (section.title.toLowerCase().includes('ats')) Icon = FileText;
+        return { ...section, Icon };
+      }),
     [sections],
   );
   const derivedFitScore = useMemo(
@@ -50,13 +58,6 @@ const Step3 = ({
     return cvFile.name.replace(/\.[^/.]+$/, '');
   }, [cvFile]);
 
-  const handleDownloadOptimizedPdf = useCallback(() => {
-    exportResumeMarkdownToPdf({
-      markdown: optimizedCV,
-      template,
-      fileName: resumeFileName,
-    });
-  }, [optimizedCV, template, resumeFileName]);
 
   useEffect(() => {
     if (optimizedCV) {
@@ -160,10 +161,10 @@ const Step3 = ({
                   optimizedCV={optimizedCV}
                   template={template}
                   onTemplateChange={setTemplate}
-                  onDownload={handleDownloadOptimizedPdf}
                   isOptimizing={optimizing}
                   needsTemplateRefresh={templateNeedsRefresh}
                   lastGeneratedTemplate={lastGeneratedTemplate}
+                  handleOptimize={handleOptimize}
                 />
               </div>
             </div>

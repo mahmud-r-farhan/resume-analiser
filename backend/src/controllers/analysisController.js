@@ -18,7 +18,15 @@ const analyzeCV = async (req, res, next) => {
       return res.status(400).json({ error: 'Missing job description' });
     }
 
-    const cvText = await extractTextFromPDF(req.file.buffer);
+    let cvText;
+    try {
+      cvText = await extractTextFromPDF(req.file.buffer);
+    } catch (parseError) {
+      return res.status(parseError.statusCode || 400).json({
+        error: 'PDF extraction failed',
+        message: parseError.message
+      });
+    }
 
     console.log(`Analyzing with model: ${model}`);
     const result = await aiService.analyzeCV(cvText, jobDescription, model);
@@ -67,7 +75,15 @@ const optimizeCV = async (req, res, next) => {
       return res.status(400).json({ error: 'Missing required fields: jobDescription and analysis are required' });
     }
 
-    const cvText = await extractTextFromPDF(req.file.buffer);
+    let cvText;
+    try {
+      cvText = await extractTextFromPDF(req.file.buffer);
+    } catch (parseError) {
+      return res.status(parseError.statusCode || 400).json({
+        error: 'PDF extraction failed',
+        message: parseError.message
+      });
+    }
 
     console.log(`Optimizing with model: ${model}, template: ${template}`);
     

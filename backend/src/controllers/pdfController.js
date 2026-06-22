@@ -7,7 +7,7 @@ const { generatePDF } = require('../templates/PDFKitGenerator');
 const ResumeParse = require('../models/ResumeParse');
 const { saveParsedResumeAndGeneratePDF } = require('../services/pdfGeneratorService');
 
-const templateList = ['classic', 'modern', 'functional'];
+const templateList = ['classic', 'modern', 'functional', 'executive'];
 
 const generateResumePDF = async (req, res, next) => {
   try {

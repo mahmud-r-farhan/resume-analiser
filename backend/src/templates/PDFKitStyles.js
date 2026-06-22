@@ -101,6 +101,32 @@ const functionalStyles = {
     sectionAccent: 'underline',
 };
 
+const executiveStyles = {
+    colors: {
+        primary: '#0f172a',    // Dark Slate
+        secondary: '#1e293b',
+        accent: '#1e3a8a',     // Navy Blue
+        border: '#94a3b8',
+        bulletColor: '#1e3a8a',
+        background: '#ffffff',
+    },
+    fonts: {
+        header: 'Times-Bold',
+        body: 'Times-Roman',
+        italic: 'Times-Italic',
+    },
+    spacing: {
+        page: {
+            top: 50,
+            bottom: 50,
+            left: 55,
+            right: 55,
+        },
+        section: 22,
+        headerBottom: 25,
+    }
+};
+
 module.exports = {
     colors,
     fonts,
@@ -108,4 +134,5 @@ module.exports = {
     classicStyles,
     modernStyles,
     functionalStyles,
+    executiveStyles,
 };

@@ -5,7 +5,7 @@
 
 const PDFDocument = require('pdfkit');
 const { parseResumeMarkdown } = require('./parser');
-const { colors, fonts, spacing, classicStyles, modernStyles, functionalStyles } = require('./PDFKitStyles');
+const { colors, fonts, spacing, classicStyles, modernStyles, functionalStyles, executiveStyles } = require('./PDFKitStyles');
 
 /**
  * Helper to draw a rounded rectangle
@@ -992,6 +992,9 @@ async function generatePDF(markdown, template = 'classic') {
                 case 'functional':
                     generateFunctionalTemplate(doc, parsed);
                     break;
+                case 'executive':
+                    generateExecutiveTemplate(doc, parsed);
+                    break;
                 case 'classic':
                 default:
                     generateClassicTemplate(doc, parsed);
@@ -1005,9 +1008,198 @@ async function generatePDF(markdown, template = 'classic') {
     });
 }
 
+/**
+ * Executive Template - Elegant and sophisticated layout for senior leadership
+ */
+function generateExecutiveTemplate(doc, parsed) {
+    const styles = executiveStyles;
+    const spacingOverride = styles.spacing || spacing;
+    const pageWidth = doc.page.width - spacingOverride.page.left - spacingOverride.page.right;
+    let y = spacingOverride.page.top;
+
+    const fontHeader = styles.fonts.header || 'Helvetica-Bold';
+    const fontBody = styles.fonts.body || 'Helvetica';
+    const fontItalic = styles.fonts.italic || 'Helvetica-Oblique';
+
+    // Centered Header with Border
+    if (parsed.header.name) {
+        doc.font(fontHeader)
+            .fontSize(24)
+            .fillColor(styles.colors.primary);
+        doc.text(parsed.header.name.toUpperCase(), spacingOverride.page.left, y, {
+            width: pageWidth,
+            align: 'center',
+            characterSpacing: 1.5
+        });
+        y = doc.y + 8;
+    }
+
+    if (parsed.header.title) {
+        doc.font(fontBody)
+            .fontSize(14)
+            .fillColor(styles.colors.secondary);
+        doc.text(parsed.header.title, spacingOverride.page.left, y, {
+            width: pageWidth,
+            align: 'center',
+            characterSpacing: 1
+        });
+        y = doc.y + 10;
+    }
+
+    // Contact info centered
+    if (parsed.header.contact && parsed.header.contact.length > 0) {
+        doc.font(fontBody)
+            .fontSize(9)
+            .fillColor(styles.colors.secondary);
+
+        const contactText = parsed.header.contact.join('   •   ');
+        doc.text(contactText, spacingOverride.page.left, y, {
+            width: pageWidth,
+            align: 'center',
+        });
+        y = doc.y + 15;
+    }
+
+    // Double line border for executive look
+    doc.strokeColor(styles.colors.accent)
+        .lineWidth(1.5)
+        .moveTo(spacingOverride.page.left, y)
+        .lineTo(doc.page.width - spacingOverride.page.right, y)
+        .stroke();
+    y += 3;
+    doc.strokeColor(styles.colors.accent)
+        .lineWidth(0.5)
+        .moveTo(spacingOverride.page.left, y)
+        .lineTo(doc.page.width - spacingOverride.page.right, y)
+        .stroke();
+    y += 20;
+
+    // Sections
+    for (const section of parsed.sections) {
+        if (y > doc.page.height - 100) {
+            doc.addPage();
+            y = spacingOverride.page.top;
+        }
+
+        // Section header - Centered between two thin lines
+        doc.strokeColor('#cbd5e1')
+            .lineWidth(0.5)
+            .moveTo(spacingOverride.page.left, y)
+            .lineTo(doc.page.width - spacingOverride.page.right, y)
+            .stroke();
+        y += 8;
+
+        doc.font(fontHeader)
+            .fontSize(12)
+            .fillColor(styles.colors.primary);
+        doc.text(section.title.toUpperCase(), spacingOverride.page.left, y, {
+            width: pageWidth,
+            align: 'center',
+            characterSpacing: 2
+        });
+        y = doc.y + 8;
+
+        doc.strokeColor('#cbd5e1')
+            .lineWidth(0.5)
+            .moveTo(spacingOverride.page.left, y)
+            .lineTo(doc.page.width - spacingOverride.page.right, y)
+            .stroke();
+        y += 15;
+
+        // Section items
+        for (const item of section.items) {
+            if (y > doc.page.height - 80) {
+                doc.addPage();
+                y = spacingOverride.page.top;
+            }
+
+            switch (item.type) {
+                case 'job':
+                    y = renderJobEntryExecutive(doc, item, y, pageWidth, styles, fontHeader, fontBody, fontItalic);
+                    break;
+                case 'education':
+                    y = renderEducationEntryExecutive(doc, item, y, pageWidth, styles, fontHeader, fontBody);
+                    break;
+                case 'skill_category':
+                    doc.font(fontHeader).fontSize(10).fillColor(styles.colors.primary);
+                    doc.text(`${item.category}: `, spacingOverride.page.left, y, { continued: true });
+                    doc.font(fontBody).fillColor(colors.text).text(item.skills.join(', '));
+                    y = doc.y + 8;
+                    break;
+                case 'bullet':
+                    y = drawBullet(doc, spacingOverride.page.left + 10, y, item.text, {
+                        bulletColor: styles.colors.bulletColor,
+                        width: pageWidth - 10,
+                        font: fontBody
+                    });
+                    y += 4;
+                    break;
+                case 'text':
+                    y = drawWrappedText(doc, item.text, spacingOverride.page.left, y, {
+                        width: pageWidth,
+                        font: fontBody,
+                        align: 'justify'
+                    });
+                    y += 10;
+                    break;
+            }
+        }
+        y += 10;
+    }
+
+    return doc;
+}
+
+function renderJobEntryExecutive(doc, job, startY, width, styles, fontHeader, fontBody, fontItalic) {
+    let y = startY;
+    const x = spacing.page.left;
+
+    // Company and Date
+    doc.font(fontHeader).fontSize(11).fillColor(styles.colors.primary);
+    doc.text(job.company.toUpperCase(), x, y, { continued: true });
+
+    doc.font(fontBody).fontSize(10).fillColor(styles.colors.secondary);
+    doc.text(job.date ? ` | ${job.date}` : '', { align: 'right' });
+    y = doc.y + 2;
+
+    // Title and Location
+    doc.font(fontItalic).fontSize(10).fillColor(styles.colors.accent);
+    doc.text(job.role, x, y, { continued: true });
+    doc.font(fontBody).fillColor(colors.textMuted).text(job.location ? ` — ${job.location}` : '');
+    y = doc.y + 6;
+
+    // Bullets
+    if (job.bullets && job.bullets.length > 0) {
+        for (const bullet of job.bullets) {
+            y = drawBullet(doc, x + 10, y, bullet, {
+                bulletColor: styles.colors.bulletColor,
+                width: width - 10,
+                font: fontBody
+            });
+            y += 2;
+        }
+    }
+
+    return y + 8;
+}
+
+function renderEducationEntryExecutive(doc, edu, startY, width, styles, fontHeader, fontBody) {
+    let y = startY;
+    const x = spacing.page.left;
+
+    doc.font(fontHeader).fontSize(11).fillColor(styles.colors.primary);
+    doc.text(edu.degree, x, y);
+
+    doc.font(fontBody).fontSize(10).fillColor(styles.colors.secondary);
+    doc.text(`${edu.institution}${edu.date ? `, ${edu.date}` : ''}`, x, doc.y);
+
+    return doc.y + 10;
+}
+
 module.exports = {
     generatePDF,
     generateClassicTemplate,
     generateModernTemplate,
     generateFunctionalTemplate,
+    generateExecutiveTemplate,
 };

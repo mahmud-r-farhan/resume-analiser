@@ -32,7 +32,9 @@ export const parseAnalysisSections = (analysis = '') => {
 };
 
 export const extractFitScore = (analysis = '', fallback) => {
-  const scoreMatch = analysis.match(/FIT\s*SCORE:?\s*(\d{1,3})/i);
+  const scoreMatch = analysis.match(/FIT\s*SCORE:?\s*(\d{1,3})/i) ||
+                     analysis.match(/fit score[:\s]*(\d+)/i) ||
+                     analysis.match(/(\d+)\s*\/\s*100/i);
   if (scoreMatch) return clampScore(scoreMatch[1]);
   return typeof fallback === 'number' ? clampScore(fallback) : null;
 };
