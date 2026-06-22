@@ -49,8 +49,8 @@ router.post(
   },
 );
 
-// PDF Generation endpoint - requires authentication
-router.post('/generate-pdf', requireAuth, generateResumePDF);
+// PDF Generation endpoint - public
+router.post('/generate-pdf', generateResumePDF);
 
 // Get analysis history
 router.get('/history', async (req, res, next) => {

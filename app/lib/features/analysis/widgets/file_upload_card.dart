@@ -40,8 +40,8 @@ class FileUploadCard extends StatelessWidget {
                 border: Border.all(
                   color: isSelected
                       ? scheme.primary.withValues(alpha: 0.6)
-                      : Colors.white.withValues(alpha: 0.15),
-                  width: isSelected ? 2 : 1,
+                      : (isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.shade300),
+                  width: isSelected ? 2 : 1.5,
                 ),
                 boxShadow: isSelected
                     ? [
@@ -51,7 +51,13 @@ class FileUploadCard extends StatelessWidget {
                           spreadRadius: 1,
                         )
                       ]
-                    : [],
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.03),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        )
+                      ],
               ),
               child: Stack(
                 children: [

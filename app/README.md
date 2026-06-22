@@ -1,4 +1,4 @@
-# Resume Copilot - Mobile App
+# Resume Copilot - Mobile App (v1.1.0)
 
 A modern, cross-platform mobile application built with Flutter to help candidates personalize their resumes using AI. This app connects to the Resume Copilot backend to serve detailed analysis and job fit scoring.
 
@@ -6,7 +6,9 @@ A modern, cross-platform mobile application built with Flutter to help candidate
 
 *   **Smart Analysis**: Upload a PDF resume and paste a job description to get instant feedback.
 *   **Visual Reports**: Beautiful fit score gauge and markdown-rendered detailed analysis.
-*   **Modern UI/UX**: Clean design with smooth animations (`animate_do`) and responsive layout.
+*   **Local History**: Keep track of your recent analyses with local persistence.
+*   **PDF Export**: Export and share your analysis reports as professional PDFs.
+*   **Modern UI/UX**: Clean design with smooth animations (`animate_do`), glassmorphism effects, and responsive layout.
 *   **Theming**: Full support for System, Light, and Dark modes.
 *   **State Management**: Robust architecture using **Riverpod**.
 
@@ -14,9 +16,10 @@ A modern, cross-platform mobile application built with Flutter to help candidate
 
 *   **Framework**: Flutter (Dart)
 *   **State Management**: `flutter_riverpod`
+*   **Persistence**: `shared_preferences`
 *   **Networking**: `dio`
-*   **UI Components**: `google_fonts`, `dotted_border`, `flutter_markdown`
-*   **File Handling**: `file_picker`
+*   **UI Components**: `google_fonts`, `dotted_border`, `flutter_markdown`, `animate_do`
+*   **File Handling**: `file_picker`, `path_provider`, `share_plus`
 
 ## 🏃‍♂️ Getting Started
 
