@@ -11,7 +11,7 @@ An AI-powered career copilot that help candidates personalise their resume for e
 - **Premium Analysis Dashboard** – Executive summary, strengths, keyword gaps, and ATS guidance rendered in rich cards with Markdown highlighting.
 - **Dynamic Fit Score** – Visual gauge backed by AI scoring to show your alignment with the role.
 - **markdown-native Resume Builder** – Generate, copy, and download a professional Markdown resume that renders perfectly in the app and in exported PDFs.
-- **Template-aware Optimisation** – Switch between classic, modern, and functional layouts; regenerate with one click.
+- **Template-aware Optimisation** – Switch between classic, modern, functional, and the new **Executive** layouts; regenerate with one click.
 - **One-click Exports** – Save analysis as Markdown/PDF and download the optimised résumé as a polished PDF instantly.
 - **Resilient UX** – Graceful loading states, rate-limit handling, and contextual callouts to guide the user journey.
 
@@ -80,7 +80,7 @@ SMTP_PASS=
 #### Frontend (`frontend/.env`)
 
 ```
-VITE_API_ENDPOINT=http://localhost:5005/api
+VITE_API_ENDPOINT=http://localhost:5000/api
 ```
 
 ### 3. Run the full stack

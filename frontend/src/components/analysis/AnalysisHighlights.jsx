@@ -31,7 +31,7 @@ const AnalysisHighlights = ({ sections }) => {
       )}
 
       {remainingSections.length > 0 && (
-        <div className="">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {remainingSections.map((section, idx) => (
             <AnalysisSectionCard
               key={section.id}

@@ -93,6 +93,7 @@ const ResumePreview = ({
     classic: 'Timeless reverse-chronological layout. Perfect for traditional industries and senior roles.',
     modern: 'Bold two-column design with color accents. Ideal for tech, design, and creative positions.',
     functional: 'Skills-first structure that highlights capabilities over timeline. Great for career changers.',
+    executive: 'Sophisticated and elegant layout designed for senior leadership and executive roles.',
   };
 
   return (
@@ -121,6 +122,7 @@ const ResumePreview = ({
             <option value="classic">Classic — Timeless & Professional</option>
             <option value="modern">Modern — Bold & Contemporary</option>
             <option value="functional">Functional — Skills-First Power</option>
+            <option value="executive">Executive — High-End & Elegant</option>
           </select>
         </div>
       </header>
@@ -140,16 +142,25 @@ const ResumePreview = ({
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="rounded-2xl border border-[#FFCF6B]/40 bg-[#4A3513]/40 px-5 py-3.5 text-sm text-[#FFE6B3] flex gap-3"
+          className="rounded-2xl border border-[#FFCF6B]/40 bg-[#4A3513]/40 px-5 py-3.5 text-sm text-[#FFE6B3] flex items-center justify-between gap-3"
         >
-          <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-          <div>
-            <strong className="text-white">Template changed</strong> from{' '}
-            <span className="font-bold uppercase text-white">
-              {lastGeneratedTemplate}
-            </span>
-            . Regenerate to apply the new layout.
+          <div className="flex gap-3">
+            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            <div>
+              <strong className="text-white">Template changed</strong> from{' '}
+              <span className="font-bold uppercase text-white">
+                {lastGeneratedTemplate}
+              </span>
+              . Regenerate to apply the new layout.
+            </div>
           </div>
+          <button
+            onClick={handleOptimize}
+            disabled={isOptimizing}
+            className="flex items-center gap-2 rounded-lg bg-[#FFCF6B] px-4 py-2 text-xs font-bold text-black transition hover:bg-[#FFD98A] disabled:opacity-50"
+          >
+            Regenerate Now
+          </button>
         </motion.div>
       )}
 

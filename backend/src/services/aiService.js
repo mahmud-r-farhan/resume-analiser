@@ -17,7 +17,15 @@ class AIService {
   }
 
   buildAnalysisPrompt(cvText, jobDescription) {
-    return `Analyze the following CV against this job description. Provide a detailed analysis including strengths, weaknesses, missing skills, and a fit score from 0-100.
+    return `Analyze the following CV against this job description. Provide a premium, detailed analysis.
+Structure your response as follows:
+1. **Executive Summary**: A high-level overview of the candidate's fit.
+2. **Key Strengths**: 3-5 bullet points of where the candidate excels for this role.
+3. **Critical Gaps**: Missing skills or experience that are required.
+4. **ATS Recommendations**: How to improve the resume for automated systems.
+5. **FIT SCORE**: A number from 0 to 100 representing the match quality.
+
+IMPORTANT: Always include "FIT SCORE: [number]" at the end of your analysis.
 
 CV:
 ${cvText}
@@ -27,30 +35,30 @@ ${jobDescription}`;
   }
 
   buildOptimizationPrompt(cvText, jobDescription, analysis, template) {
-    return `You are a professional resume writer. Create an optimized resume in MARKDOWN format.
+    return `You are a world-class professional resume writer. Create a highly optimized, premium resume in clean MARKDOWN format.
 
-IMPORTANT: Start with the candidate's name as a heading (# First Last Name).
-Then include their professional title (## Senior Software Engineer or similar).
-Then their contact info (email | phone | location | linkedin).
+CRITICAL STRUCTURE REQUIREMENTS:
+# [Candidate Full Name]
+## [Professional Title]
+[Email] | [Phone] | [Location] | [LinkedIn/Portfolio URL]
 
-Follow this structure:
-# Candidate Full Name
-## Professional Title
-email@example.com | +1-555-0123 | City, State | linkedin.com/in/profile
+### Professional Summary
+[A compelling 3-4 sentence paragraph highlighting unique value and top achievements.]
 
-### Summary
-[2-3 sentences about professional background]
+### Core Competencies
+- [Category]: [Skill 1], [Skill 2], [Skill 3]
+- [Category]: [Skill 1], [Skill 2], [Skill 3]
 
-### Experience
-[Job Title] at [Company] | [Start Date - End Date]
-- Achievement with quantifiable result
-- [More bullets]
-
-### Skills
-[Key technical skills separated by commas or organized by category]
+### Professional Experience
+**[Job Title]** | **[Company Name]** | [Start Date] – [End Date]
+- [Action Verb] [Achievement] resulting in [Quantifiable Impact].
+- [Action Verb] [Achievement] resulting in [Quantifiable Impact].
 
 ### Education
-[Degree] | [University] | [Year]
+**[Degree Name]** | [University Name] | [Graduation Year]
+
+### Certifications & Honors
+- [Name] | [Issuing Organization] | [Year]
 
 ORIGINAL CV:
 ${cvText}
@@ -58,32 +66,31 @@ ${cvText}
 TARGET JOB DESCRIPTION:
 ${jobDescription}
 
-ANALYSIS INSIGHTS:
+ANALYSIS INSIGHTS TO INCORPORATE:
 ${analysis}
 
 REQUIREMENTS:
-- Incorporate all feedback from the analysis
-- Add ATS keywords from the job description naturally
-- Use strong action verbs
-- Quantify achievements (numbers, percentages, dollar amounts)
-- Keep roles and companies accurate
-- DO NOT fabricate experience
-- Ensure markdown is properly formatted with # ## and ### headings
-- Include name, title, and contact info at the top
+- ALWAYS start with exactly one # heading for the Name.
+- ALWAYS use ## for the Professional Title.
+- ALWAYS use ### for main section headers.
+- Use bold **[Role]** and **[Company]** in Experience.
+- Use en-dashes (–) for date ranges.
+- DO NOT use markdown code blocks (\`\`\`).
+- DO NOT include introductory or concluding text. Return ONLY the resume.
 
 Create the optimized resume now:`;
   }
 
   extractFitScore(analysis) {
-    const match = analysis.match(/fit score[:\s]*(\d+)/i) || 
-                  analysis.match(/(\d+)\s*\/\s*100/i) ||
-                  analysis.match(/(\d{2,3})\s*(?:out of|%)?/i);
+    const match = analysis.match(/FIT\s*SCORE:?\s*(\d{1,3})/i) ||
+                  analysis.match(/fit score[:\s]*(\d+)/i) ||
+                  analysis.match(/(\d+)\s*\/\s*100/i);
     
     if (match) {
       const score = parseInt(match[1], 10);
       return Math.max(0, Math.min(100, score));
     }
-    return 50; // Default safe value
+    return 50;
   }
 
   async analyzeCV(cvText, jobDescription, model) {
