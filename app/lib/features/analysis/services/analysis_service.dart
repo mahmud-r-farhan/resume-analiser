@@ -74,4 +74,36 @@ class AnalysisService {
       throw Exception('An unexpected error occurred: $e');
     }
   }
+
+  Future<Uint8List> generateAnalysisPDF({
+    required String analysis,
+    required int score,
+    required String fileName,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '${ApiConfig.baseUrl}/generate-pdf',
+        data: {
+          'markdown': '# Analysis Report for $fileName\n\n## Fit Score: $score%\n\n$analysis',
+          'template': 'classic',
+          'fileName': 'Analysis_Report',
+        },
+        options: Options(
+          responseType: ResponseType.bytes,
+          headers: {
+            'Accept': 'application/pdf',
+          },
+        ),
+      );
+
+      return Uint8List.fromList(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception('PDF generation failed');
+      }
+      throw Exception('Connection error: ${e.message}');
+    } catch (e) {
+      throw Exception('An unexpected error occurred: $e');
+    }
+  }
 }

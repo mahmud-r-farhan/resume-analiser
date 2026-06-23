@@ -27,6 +27,11 @@ const generateResumePDF = async (req, res, next) => {
 
     // If resumeId provided, retrieve from DB instead of regenerating
     if (resumeId) {
+      // Require authentication for retrieving stored resumes
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required to access stored resumes' });
+      }
+
       const existingResume = await ResumeParse.findById(resumeId);
       if (!existingResume || existingResume.userId.toString() !== req.user.id) {
         return res.status(403).json({ error: 'Resume not found or unauthorized' });

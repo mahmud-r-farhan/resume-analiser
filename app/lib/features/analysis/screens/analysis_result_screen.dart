@@ -1,9 +1,14 @@
+import 'dart:io';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import '../providers/analysis_provider.dart';
 
-class AnalysisResultScreen extends StatelessWidget {
+class AnalysisResultScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> data;
 
   const AnalysisResultScreen({
@@ -12,14 +17,57 @@ class AnalysisResultScreen extends StatelessWidget {
   });
 
   @override
+  ConsumerState<AnalysisResultScreen> createState() => _AnalysisResultScreenState();
+}
+
+class _AnalysisResultScreenState extends ConsumerState<AnalysisResultScreen> {
+  bool _isExporting = false;
+
+  Future<void> _exportAsPDF(BuildContext context, String analysis, int score) async {
+    setState(() {
+      _isExporting = true;
+    });
+
+    try {
+      final service = ref.read(analysisServiceProvider);
+      final pdfBytes = await service.generateAnalysisPDF(
+        analysis: analysis,
+        score: score,
+        fileName: widget.data['fileName'] ?? 'resume',
+      );
+
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/Analysis_Report_${DateTime.now().millisecondsSinceEpoch}.pdf');
+      await file.writeAsBytes(pdfBytes);
+
+      if (!mounted) return;
+      await Share.shareXFiles([XFile(file.path)], text: 'My Resume Analysis Report');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to export PDF: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isExporting = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Parse fitScore - handle both int and String types
-    final dynamic fitScoreData = data['fitScore'];
+    final dynamic fitScoreData = widget.data['fitScore'];
     final int fitScore = fitScoreData is int
         ? fitScoreData
         : (fitScoreData is String ? int.tryParse(fitScoreData) ?? 0 : 0);
     
-    final String analysis = data['analysis'] ?? 'No analysis available.';
+    final String analysis = widget.data['analysis'] ?? 'No analysis available.';
 
     Color scoreColor;
     String scoreStatus;
@@ -64,19 +112,19 @@ class AnalysisResultScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     gradient: LinearGradient(
                       colors: [
-                        scoreColor.withValues(alpha: 0.1),
-                        scoreColor.withValues(alpha: 0.05),
+                        scoreColor.withOpacity(0.1),
+                        scoreColor.withOpacity(0.05),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     border: Border.all(
-                      color: scoreColor.withValues(alpha: 0.2),
+                      color: scoreColor.withOpacity(0.2),
                       width: 2,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: scoreColor.withValues(alpha: 0.1),
+                        color: scoreColor.withOpacity(0.1),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -151,10 +199,10 @@ class AnalysisResultScreen extends StatelessWidget {
                           vertical: 12,
                         ),
                         decoration: BoxDecoration(
-                          color: scoreColor.withValues(alpha: 0.15),
+                          color: scoreColor.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: scoreColor.withValues(alpha: 0.3),
+                            color: scoreColor.withOpacity(0.3),
                             width: 1,
                           ),
                         ),
@@ -198,7 +246,7 @@ class AnalysisResultScreen extends StatelessWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.03),
+                        color: Colors.black.withOpacity(0.03),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -256,7 +304,7 @@ class AnalysisResultScreen extends StatelessWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.03),
+                        color: Colors.black.withOpacity(0.03),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -343,21 +391,16 @@ class AnalysisResultScreen extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text('Feature coming soon!'),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              margin: const EdgeInsets.all(16),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.download, size: 20),
+                        onPressed: _isExporting ? null : () => _exportAsPDF(context, analysis, fitScore),
+                        icon: _isExporting
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)
+                              )
+                            : const Icon(Icons.download, size: 20),
                         label: Text(
-                          'Export PDF',
+                          _isExporting ? 'Exporting...' : 'Export PDF',
                           style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

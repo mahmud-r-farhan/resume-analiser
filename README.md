@@ -20,7 +20,7 @@ An AI-powered career copilot that help candidates personalise their resume for e
 ## 🧱 Tech Stack
 
 - **Frontend:** React, Vite, Framer Motion, Tailwind utilities, Sonner toasts 
-- **Cross-Platform Mobile App:** Based on Flutter!
+- **Cross-Platform Mobile App:** v1.1.0 with Local History and PDF Export!
 - **Backend:** Node.js, Express.js  
 - **Database:** MongoDB
 - **AI Provider:** [OpenRouter](https://openrouter.ai/)

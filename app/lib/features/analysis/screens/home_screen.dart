@@ -3,8 +3,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 import '../../../core/providers/theme_provider.dart';
+import '../providers/history_provider.dart';
 import '../providers/analysis_provider.dart';
 import '../providers/model_provider.dart';
 import '../widgets/app_drawer.dart';
@@ -236,6 +238,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               // Content based on current step
               if (_currentStep == 0) ...[
                 _buildStep1Content(context),
+                const SizedBox(height: 48),
+                _buildRecentHistory(context),
               ] else if (_currentStep == 1) ...[
                 _buildStep2Content(context),
               ],
@@ -243,6 +247,133 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildRecentHistory(BuildContext context) {
+    final history = ref.watch(historyProvider);
+
+    if (history.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        FadeInUp(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Recent Analyses',
+                style: GoogleFonts.outfit(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  ref.read(historyProvider.notifier).clearHistory();
+                },
+                child: const Text('Clear All'),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: history.length > 3 ? 3 : history.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final item = history[index];
+            final date = DateTime.parse(item['timestamp']);
+            final formattedDate = DateFormat('MMM dd, yyyy • HH:mm').format(date);
+            final score = item['fitScore'] ?? 0;
+
+            Color scoreColor = Colors.red;
+            if (score >= 80) {
+              scoreColor = Colors.green;
+            } else if (score >= 60) {
+              scoreColor = Colors.orange;
+            }
+
+            return FadeInUp(
+              delay: Duration(milliseconds: 100 * index),
+              child: InkWell(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => AnalysisResultScreen(data: item),
+                    ),
+                  );
+                },
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.grey.shade200,
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: scoreColor.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            '$score%',
+                            style: GoogleFonts.outfit(
+                              fontWeight: FontWeight.w700,
+                              color: scoreColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item['fileName'] ?? 'Resume',
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              formattedDate,
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                color: Colors.grey.shade500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: Colors.grey.shade400,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -375,7 +506,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black.withOpacity(0.05),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -477,9 +608,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
               border: Border.all(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
                 width: 1,
               ),
             ),

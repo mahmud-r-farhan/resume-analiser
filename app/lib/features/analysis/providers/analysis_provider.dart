@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/analysis_service.dart';
+import 'history_provider.dart';
 
 final analysisServiceProvider = Provider<AnalysisService>((ref) {
   return AnalysisService();
@@ -29,6 +30,14 @@ class AnalysisNotifier extends Notifier<AsyncValue<Map<String, dynamic>?>> {
         jobDescription: jobDescription,
         model: model,
       );
+
+      // Save to history
+      await ref.read(historyProvider.notifier).addEntry({
+        ...result,
+        'jobDescription': jobDescription,
+        'fileName': file.name,
+      });
+
       state = AsyncValue.data(result);
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
